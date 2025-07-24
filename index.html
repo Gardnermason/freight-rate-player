@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Freight Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Caveat:wght@700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <script>
+        // Apply dark mode immediately from localStorage to prevent flashing
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: #14b8a6; /* Teal background */
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+            background-attachment: fixed;
+        }
+        .dark body {
+            background-color: #1f2937;
+             background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .main-title { font-family: 'Press Start 2P', cursive; cursor: pointer; }
+        .form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); border-color: #3b82f6 !important; }
+        
+        #side-menu { transition: transform 0.3s ease-in-out; }
+
+        .d-pad { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 120px; height: 120px; }
+        .d-pad-btn { background-color: #374151; transition: background-color 0.2s; }
+        .d-pad-btn:active { background-color: #4b5563; }
+        .up { grid-column: 2; grid-row: 1; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
+        .left { grid-column: 1; grid-row: 2; clip-path: polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%);}
+        .center { grid-column: 2; grid-row: 2; }
+        .right { grid-column: 3; grid-row: 2; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
+        .down { grid-column: 2; grid-row: 3; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
+
+        .ab-buttons { display: flex; align-items: center; gap: 1rem; }
+        .ab-btn { width: 50px; height: 50px; border-radius: 50%; background-color: #7e22ce; color: white; font-family: 'Bungee', sans-serif; text-align: center; line-height: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: background-color 0.2s; font-size: 1.25rem; }
+        .ab-btn:active { background-color: #9333ea; }
+        
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            color: #4b5563;
+            background-color: #9ca3af;
+            border: 2px solid #4b5563;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease-in-out;
+        }
+        .action-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        #mode-selector-container { background-color: transparent; }
+        .mode-btn { color: #4b5563; transition: color 0.3s ease-in-out; z-index: 10; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; }
+        .mode-btn.active { color: #1f2937; }
+        #mode-slider { background-color: #9ca3af; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 5; border-radius: 9999px; }
+        
+
+        /* --- RETRO MODE STYLES --- */
+        .retro-mode body {
+            background-image: none !important;
+            background-color: #000 !important;
+            font-family: 'Press Start 2P', cursive !important;
+        }
+        .retro-mode #calculator-ui {
+            background: #000 !important;
+            border: 4px solid #4ade80 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+        .retro-mode .main-title, .retro-mode .font-bold, .retro-mode .text-gray-800 {
+            color: #4ade80 !important;
+            text-shadow: 2px 2px #000;
+        }
+        .retro-mode .form-input, .retro-mode .d-pad-btn, .retro-mode .ab-btn {
+            border-radius: 0 !important;
+            border: 2px solid #4ade80 !important;
+            background: #000 !important;
+            color: #4ade80 !important;
+        }
+        .retro-mode .ab-btn {
+            background: #4ade80 !important;
+            color: #000 !important;
+        }
+         .retro-mode .d-pad-btn {
+            background: #000 !important;
+            border-color: #4ade80 !important;
+        }
+        .retro-mode hr {
+            border-color: #4ade80 !important;
+        }
+
+
+        /* --- FINAL PRINT STYLES --- */
+        @media print {
+            body, html { background-color: white !important; }
+            #calculator-ui, #side-menu, #menu-overlay { display: none !important; }
+            .print-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
+            .print-area-content { background-color: white !important; color: black !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
+            .print-area-content * { color: black !important; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
+
+    <!-- Transition Canvas -->
+    <canvas id="transition-canvas" class="fixed inset-0 w-full h-full z-50 pointer-events-none hidden"></canvas>
+
+    <!-- Menu Overlay -->
+    <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- Side Menu -->
+    <div id="side-menu" class="fixed top-0 left-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl z-40 transform -translate-x-full">
+        <div class="p-5 flex flex-col h-full">
+            <div>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-[#003366] dark:text-blue-200">Menu</h2>
+                    <button id="close-menu-btn" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <nav id="main-menu" class="space-y-2">
+                    <div class="p-3">
+                        <label for="apiKeyInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PC*Miler API Key</label>
+                        <input type="text" id="apiKeyInput" placeholder="Enter your API key" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm">
+                    </div>
+                    <a href="#" id="history-menu-btn" class="flex items-center p-3 text-lg text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Recent Calculations
+                    </a>
+                     <a href="#" id="theme-toggle" class="flex items-center p-3 text-lg text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 10.607a1 1 0 010-1.414l.707-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zM3 11a1 1 0 100-2H2a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                        Night Shift
+                    </a>
+                    <a href="#" id="feedback-menu-btn" class="flex items-center p-3 text-lg text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                         <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        Send Feedback
+                    </a>
+                </nav>
+            </div>
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+            <!-- Personal Stats & Version -->
+            <div class="mt-auto p-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-center text-[#003366] dark:text-blue-200">Calculation Counter</h3>
+                <p id="personal-calc-counter" class="text-4xl font-bold text-center text-blue-600 dark:text-blue-400 mt-2">0</p>
+                <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">Version 2.7</p>
+            </div>
+            <!-- History View -->
+            <div id="history-view" class="hidden absolute inset-0 bg-white dark:bg-gray-800 p-5">
+                 <div class="flex justify-between items-center mb-4">
+                    <button id="back-to-menu-hist" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h3 class="text-xl font-bold text-center text-[#003366] dark:text-blue-200">History</h3>
+                    <div class="w-6"></div>
+                </div>
+                <div id="history-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                <button id="clear-history-btn" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Clear History</button>
+            </div>
+            <!-- Feedback View -->
+            <div id="feedback-view" class="hidden absolute inset-0 bg-white dark:bg-gray-800 p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <button id="back-to-menu-feed" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h3 class="text-xl font-bold text-center text-[#003366] dark:text-blue-200">Feedback</h3>
+                    <div class="w-6"></div>
+                </div>
+                <form id="feedback-form" class="space-y-4">
+                    <textarea id="feedback-message" placeholder="Your feedback..." rows="5" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"></textarea>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="calculator-ui" class="w-full max-w-md mx-auto bg-teal-500 p-6 rounded-2xl shadow-2xl border-4 border-gray-600">
+        <div class="flex justify-between items-center">
+             <button id="open-menu-btn" type="button" class="p-1 text-gray-800 rounded-lg">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <h1 id="main-title" class="main-title text-center text-lg text-gray-800">Thompson Transportation</h1>
+            <div class="w-8"></div>
+        </div>
+        
+        <!-- Screen Area -->
+        <div id="map-container" class="my-4 bg-gray-800 border-4 border-gray-600 rounded-lg aspect-square flex items-center justify-center text-gray-400">
+            <img id="map-image" src="" alt="Route map" class="object-contain h-full w-full rounded-lg hidden">
+            <div id="map-loader" class="spinner hidden"></div>
+            <span id="map-placeholder">Route map will be displayed here</span>
+        </div>
+        
+        <form id="rateCalculatorForm">
+            <!-- Mode Selector -->
+            <div id="mode-selector-container" class="relative grid grid-cols-3 gap-2 mb-4 p-1 rounded-full">
+                <div id="mode-slider" class="absolute top-1 bottom-1 left-1 w-1/3 rounded-full"></div>
+                <button type="button" data-mode="generateQuote" class="mode-btn py-1 px-1 rounded-full">Quote</button>
+                <button type="button" data-mode="calculateFromTon" class="mode-btn py-1 px-1 rounded-full">Ton</button>
+                <button type="button" data-mode="calculateFromFlat" class="mode-btn py-1 px-1 rounded-full">Flat</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Left Side: Locations -->
+                <div class="space-y-2">
+                    <input type="text" id="stop1" placeholder="First Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
+                    <input type="text" id="stop2" placeholder="P/U Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
+                    <input type="text" id="stop3" placeholder="Del. Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-gray-800">Total Miles</label>
+                        <input type="number" id="total-miles-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed" placeholder="0">
+                    </div>
+                </div>
+
+                <!-- Right Side: Calculations -->
+                <div id="right-column" class="space-y-2 flex flex-col">
+                     <div id="field-primary-input" class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-gray-800" id="primary-input-label">($/Mile)</label>
+                        <input type="number" id="primary-input" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                    </div>
+                     <div id="field-tonnage" class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-gray-800">Tonnage</label>
+                        <input type="number" id="tonnage" value="23" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                    </div>
+                    <div id="field-fsc" class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-gray-800">FSC (%)</label>
+                        <input type="number" id="fsc" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                    </div>
+                    <hr id="field-hr" class="border-gray-600 my-1">
+                    <div id="field-primary-output" class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-gray-800" id="primary-output-label">($/Ton)</label>
+                        <input type="text" id="primary-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
+                    </div>
+                     <div id="field-fsc-total" class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-gray-800">FSC Total</label>
+                        <input type="text" id="fsc-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
+                    </div>
+                     <div id="field-final-total" class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-gray-800">Final Total</label>
+                        <input type="text" id="final-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between mt-4">
+                 <div class="d-pad">
+                    <button data-key="ArrowUp" class="d-pad-btn up"></button>
+                    <button data-key="ArrowLeft" class="d-pad-btn left"></button>
+                    <div class="d-pad-btn center"></div>
+                    <button data-key="ArrowRight" class="d-pad-btn right"></button>
+                    <button data-key="ArrowDown" class="d-pad-btn down"></button>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <button type="button" id="emailButton" class="action-btn btn-email text-xs">Email</button>
+                    <button type="button" id="printButton" class="action-btn btn-print text-xs hidden">Print</button>
+                    <button type="button" id="copyButton" class="action-btn btn-copy text-xs">Copy</button>
+                    <button type="button" id="resetButton" class="action-btn btn-reset text-xs">Reset</button>
+                </div>
+                 <div class="ab-buttons">
+                    <button data-key="b" class="ab-btn">B</button>
+                    <button data-key="a" class="ab-btn">A</button>
+                </div>
+            </div>
+            <p id="api-error" class="text-red-800 text-sm text-center mt-2 hidden"></p>
+            <button type="button" id="manual-mode-btn" class="text-xs text-gray-800 hover:underline text-center w-full mt-2">Switch to Manual Miles</button>
+        </form>
+    </div>
+
+    <!-- Printable Area -->
+    <div class="print-area hidden">
+        <div class="print-area-content p-8">
+            <h1 class="text-2xl font-bold mb-2">Thompson Transportation</h1>
+            <h2 class="text-xl font-semibold mb-6 border-b pb-2">Freight Calculation Summary</h2>
+            <p class="mb-2 text-lg"><strong class="w-48 inline-block">Date:</strong> <span id="print-date"></span></p>
+            <p class="mb-2 text-lg"><strong class="w-48 inline-block">Calculation Mode:</strong> <span id="print-mode"></span></p>
+            <p class="mb-2 text-lg"><strong class="w-48 inline-block">Total Miles:</strong> <span id="print-miles"></span></p>
+            <p class="mb-2 text-lg"><strong class="w-48 inline-block">Tonnage:</strong> <span id="print-tonnage"></span></p>
+            <p class="mb-2 text-lg"><strong class="w-48 inline-block">FSC (%):</strong> <span id="print-fsc"></span></p>
+            <hr class="my-4">
+            <p class="mb-2 text-lg" id="print-your-rate-row"><strong class="w-48 inline-block"></strong> <span id="print-your-rate"></span></p>
+            <p class="mb-2 text-lg" id="print-offer-row"><strong class="w-48 inline-block"></strong> <span id="print-offer"></span></p>
+            <hr class="my-4">
+            <p class="mb-2 text-lg"><strong class="w-48 inline-block">FSC Total:</strong> <span id="print-fsc-total"></span></p>
+            <p class="text-xl font-bold mt-4"><strong class="w-48 inline-block">Final Total:</strong> <span id="print-final-total"></span></p>
+        </div>
+    </div>
+    
+    <textarea id="copySource" class="sr-only"></textarea>
+    
+    <script>
+        // --- DOM Element Selection ---
+        const mainTitle = document.getElementById('main-title');
+        const openMenuBtn = document.getElementById('open-menu-btn');
+        const sideMenu = document.getElementById('side-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const modeButtons = Array.from(document.querySelectorAll('.mode-btn'));
+        const modeSlider = document.getElementById('mode-slider');
+        const emailButton = document.getElementById('emailButton');
+        const printButton = document.getElementById('printButton');
+        const copyButton = document.getElementById('copyButton');
+        const resetButton = document.getElementById('resetButton');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const personalCalcCounter = document.getElementById('personal-calc-counter');
+        const primaryInputLabel = document.getElementById('primary-input-label');
+        const primaryOutputLabel = document.getElementById('primary-output-label');
+        const rightColumn = document.getElementById('right-column');
+        const fieldPrimaryInput = document.getElementById('field-primary-input');
+        const fieldTonnage = document.getElementById('field-tonnage');
+        const fieldFsc = document.getElementById('field-fsc');
+        const fieldHr = document.getElementById('field-hr');
+        const fieldPrimaryOutput = document.getElementById('field-primary-output');
+        const fieldFscTotal = document.getElementById('field-fsc-total');
+        const fieldFinalTotal = document.getElementById('field-final-total');
+        const bButton = document.querySelector('.ab-btn[data-key="b"]');
+        const form = document.getElementById('rateCalculatorForm');
+        const tonnageInput = document.getElementById('tonnage');
+        
+        // --- Konami Code & Sound Logic ---
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+
+        function handleKonami(key) {
+             if (key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    document.body.classList.toggle('retro-mode');
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => handleKonami(e.key));
+        
+        document.querySelectorAll('.d-pad-btn, .ab-btn').forEach(btn => {
+            btn.addEventListener('click', () => handleKonami(btn.dataset.key));
+        });
+
+        // --- Truck Horn Easter Egg ---
+        let hornClickCount = 0;
+        let hornTimeout;
+        mainTitle.addEventListener('click', async () => {
+            clearTimeout(hornTimeout);
+            hornClickCount++;
+            if (hornClickCount === 5) {
+                await Tone.start();
+                const horn = new Tone.Oscillator(185, "sawtooth").toDestination();
+                horn.volume.value = -12;
+                horn.start().stop("+0.8");
+                hornClickCount = 0;
+            }
+            hornTimeout = setTimeout(() => { hornClickCount = 0; }, 2000);
+        });
+
+        // --- Menu Logic ---
+        function openMenu() {
+            sideMenu.classList.remove('-translate-x-full');
+            menuOverlay.classList.remove('hidden');
+        }
+
+        function closeMenu() {
+            sideMenu.classList.add('-translate-x-full');
+            menuOverlay.classList.add('hidden');
+        }
+
+        openMenuBtn.addEventListener('click', openMenu);
+        closeMenuBtn.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+        
+        // --- Mode Selector Logic ---
+        let currentMode = 'generateQuote';
+        
+        function setMode(newMode) {
+            currentMode = newMode;
+            
+            const activeButton = modeButtons.find(btn => btn.dataset.mode === newMode);
+            
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            activeButton.classList.add('active');
+
+            // Animate slider
+            const { offsetLeft, offsetWidth } = activeButton;
+            modeSlider.style.width = `${offsetWidth}px`;
+            modeSlider.style.transform = `translateX(${offsetLeft}px)`;
+
+            emailButton.classList.toggle('hidden', newMode !== 'generateQuote');
+            printButton.classList.toggle('hidden', newMode === 'generateQuote');
+
+            // Update labels and field order based on mode
+             switch (newMode) {
+                case 'generateQuote':
+                    primaryInputLabel.textContent = '($/Mile)';
+                    primaryOutputLabel.textContent = '($/Ton)';
+                    rightColumn.append(fieldPrimaryInput, fieldTonnage, fieldFsc, fieldHr, fieldPrimaryOutput, fieldFscTotal, fieldFinalTotal);
+                    break;
+                case 'calculateFromTon':
+                    primaryInputLabel.textContent = '($/Ton)';
+                    primaryOutputLabel.textContent = '($/Mile)';
+                    rightColumn.append(fieldPrimaryInput, fieldTonnage, fieldFsc, fieldHr, fieldPrimaryOutput, fieldFscTotal, fieldFinalTotal);
+                    break;
+                case 'calculateFromFlat':
+                    primaryInputLabel.textContent = 'Flat Rate ($)';
+                    primaryOutputLabel.textContent = '($/Mile)';
+                    rightColumn.append(fieldPrimaryInput, fieldFsc, fieldTonnage, fieldHr, fieldPrimaryOutput, fieldFscTotal, fieldFinalTotal);
+                    break;
+            }
+            resetCalculator();
+        }
+
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => setMode(button.dataset.mode));
+        });
+        
+        // --- Reset Logic ---
+        function resetCalculator() {
+            form.reset();
+            tonnageInput.value = 23;
+            // Add any other fields that need resetting here
+            // calculate(); // Recalculate with empty fields
+        }
+
+        resetButton.addEventListener('click', resetCalculator);
+        bButton.addEventListener('click', resetCalculator);
+
+
+        // --- Initial Setup ---
+        setMode('generateQuote'); // Set initial mode
+    </script>
+</body>
+</html>
