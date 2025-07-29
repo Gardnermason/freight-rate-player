@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Freight Calculator</title>
+    <title>Custom Freight Calculator - Preview</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,21 +18,31 @@
         }
     </script>
     <style>
+        /* --- Base and Theming Styles --- */
         body { 
             font-family: 'Roboto', sans-serif; 
             background-color: #14b8a6; /* Teal background */
             background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
             background-attachment: fixed;
+            transition: background-color 0.3s ease;
         }
         .dark body {
             background-color: #1f2937;
              background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
         }
         .main-title { font-family: 'Press Start 2P', cursive; cursor: pointer; }
-        .form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); border-color: #3b82f6 !important; }
         
+        /* --- Form and Input Styles --- */
+        .form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); border-color: #3b82f6 !important; }
+        .editable-field { background-color: white; color: #111827; border-color: #9ca3af; }
+        .dark .editable-field { background-color: #374151; color: white; border-color: #4b5563; }
+        .output-field { background-color: #d1d5db; font-weight: bold; border-color: #9ca3af; }
+        .dark .output-field { background-color: #1f2937; color: #e5e7eb; border-color: #4b5563; }
+
+        /* --- Side Menu --- */
         #side-menu { transition: transform 0.3s ease-in-out; }
 
+        /* --- Controller UI Styles (D-Pad, AB Buttons) --- */
         .d-pad { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 120px; height: 120px; }
         .d-pad-btn { background-color: #374151; transition: background-color 0.2s; }
         .d-pad-btn:active { background-color: #4b5563; }
@@ -41,72 +51,54 @@
         .center { grid-column: 2; grid-row: 2; }
         .right { grid-column: 3; grid-row: 2; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
         .down { grid-column: 2; grid-row: 3; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
-
         .ab-buttons { display: flex; align-items: center; gap: 1rem; }
         .ab-btn { width: 50px; height: 50px; border-radius: 50%; background-color: #7e22ce; color: white; font-family: 'Bungee', sans-serif; text-align: center; line-height: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: background-color 0.2s; font-size: 1.25rem; }
         .ab-btn:active { background-color: #9333ea; }
         
+        /* --- Action Buttons (Email, Print, etc.) --- */
         .action-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-weight: bold;
-            color: #4b5563;
-            background-color: #9ca3af;
-            border: 2px solid #4b5563;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 9999px;
+            font-weight: bold; color: #4b5563; background-color: #9ca3af;
+            border: 2px solid #4b5563; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: all 0.2s ease-in-out;
         }
-        .action-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
+        .action-btn:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         
+        /* --- Mode Selector (Quote, Ton, Flat) --- */
         #mode-selector-container { background-color: transparent; }
         .mode-btn { color: #4b5563; transition: color 0.3s ease-in-out; z-index: 10; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; }
+        .dark .mode-btn { color: #9ca3af; }
         .mode-btn.active { color: #1f2937; }
+        .dark .mode-btn.active { color: #f9fafb; }
         #mode-slider { background-color: #9ca3af; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 5; border-radius: 9999px; }
+        .dark #mode-slider { background-color: #4b5563; }
         
+        /* --- Spinner for Loading States --- */
         .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px; border-radius: 50%; border-left-color: #3b82f6; animation: spin 1s ease infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- RETRO MODE STYLES --- */
         .retro-mode body {
-            background-image: none !important;
-            background-color: #000 !important;
+            background-image: none !important; background-color: #000 !important;
             font-family: 'Press Start 2P', cursive !important;
         }
         .retro-mode #calculator-ui {
-            background: #000 !important;
-            border: 4px solid #4ade80 !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
+            background: #000 !important; border: 4px solid #4ade80 !important;
+            box-shadow: none !important; border-radius: 0 !important;
         }
-        .retro-mode .main-title, .retro-mode .font-bold, .retro-mode .text-gray-800 {
-            color: #4ade80 !important;
-            text-shadow: 2px 2px #000;
+        .retro-mode .main-title, .retro-mode .font-bold, .retro-mode .text-gray-800, .retro-mode .mode-btn, .dark.retro-mode .mode-btn {
+            color: #4ade80 !important; text-shadow: 2px 2px #000;
         }
-        .retro-mode .form-input, .retro-mode .d-pad-btn, .retro-mode .ab-btn {
-            border-radius: 0 !important;
-            border: 2px solid #4ade80 !important;
-            background: #000 !important;
-            color: #4ade80 !important;
+        .retro-mode .mode-btn.active { color: #000 !important; }
+        .retro-mode .form-input, .retro-mode .d-pad-btn, .retro-mode .ab-btn, .retro-mode .action-btn {
+            border-radius: 0 !important; border: 2px solid #4ade80 !important;
+            background: #000 !important; color: #4ade80 !important;
         }
-        .retro-mode .ab-btn {
-            background: #4ade80 !important;
-            color: #000 !important;
-        }
-         .retro-mode .d-pad-btn {
-            background: #000 !important;
-            border-color: #4ade80 !important;
-        }
-        .retro-mode hr {
-            border-color: #4ade80 !important;
-        }
-
+        .retro-mode .ab-btn, .retro-mode .action-btn:active { background: #4ade80 !important; color: #000 !important; }
+        .retro-mode .d-pad-btn { background: #000 !important; border-color: #4ade80 !important; }
+        .retro-mode #mode-slider { background-color: #4ade80 !important; }
+        .retro-mode hr { border-color: #4ade80 !important; }
 
         /* --- FINAL PRINT STYLES --- */
         @media print {
@@ -118,9 +110,9 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
+<body class="flex items-center justify-center min-h-screen p-4 overflow-x-hidden dark:bg-gray-900">
 
-    <!-- Transition Canvas -->
+    <!-- Transition Canvas for Retro Mode -->
     <canvas id="transition-canvas" class="fixed inset-0 w-full h-full z-50 pointer-events-none hidden"></canvas>
 
     <!-- Menu Overlay -->
@@ -193,23 +185,24 @@
         </div>
     </div>
 
-    <div id="calculator-ui" class="w-full max-w-md mx-auto bg-teal-500 p-6 rounded-2xl shadow-2xl border-4 border-gray-600">
+    <!-- Main Calculator UI -->
+    <div id="calculator-ui" class="w-full max-w-md mx-auto bg-teal-500 dark:bg-gray-700 p-6 rounded-2xl shadow-2xl border-4 border-gray-600 dark:border-gray-500">
         <div class="flex justify-between items-center">
-             <button id="open-menu-btn" type="button" class="p-1 text-gray-800 rounded-lg">
+             <button id="open-menu-btn" type="button" class="p-1 text-gray-800 dark:text-gray-200 rounded-lg">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h1 id="main-title" class="main-title text-center text-lg text-gray-800">Thompson Transportation</h1>
+            <h1 id="main-title" class="main-title text-center text-lg text-gray-800 dark:text-gray-200">Thompson Transportation</h1>
             <div class="w-8"></div>
         </div>
         
         <!-- Screen Area -->
-        <div id="map-container" class="my-4 bg-gray-800 border-4 border-gray-600 rounded-lg aspect-square flex items-center justify-center text-gray-400">
+        <div id="map-container" class="my-4 bg-gray-800 border-4 border-gray-600 rounded-lg aspect-video flex items-center justify-center text-gray-400">
             <img id="map-image" src="" alt="Route map" class="object-contain h-full w-full rounded-lg hidden">
             <div id="map-loader" class="spinner hidden"></div>
             <span id="map-placeholder">Route map will be displayed here</span>
         </div>
         
-        <form id="rateCalculatorForm">
+        <form id="rateCalculatorForm" onsubmit="return false;">
             <!-- Mode Selector -->
             <div id="mode-selector-container" class="relative grid grid-cols-3 gap-2 mb-4 p-1 rounded-full">
                 <div id="mode-slider" class="absolute top-1 bottom-1 left-1 w-1/3 rounded-full"></div>
@@ -219,19 +212,19 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <!-- Left Side: Locations -->
+                <!-- Left Side: Locations / Manual Miles -->
                 <div id="pcmiler-inputs" class="space-y-2 hidden">
                     <input type="text" id="stop1" placeholder="First Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
                     <input type="text" id="stop2" placeholder="P/U Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
                     <input type="text" id="stop3" placeholder="Del. Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
                     <div class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800">Total Miles</label>
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Total Miles</label>
                         <input type="number" id="total-miles-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed" placeholder="0">
                     </div>
                 </div>
                 <div id="manual-miles-input" class="space-y-2">
                      <div class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800">Total Miles</label>
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Total Miles</label>
                         <input type="number" id="miles" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                 </div>
@@ -239,39 +232,39 @@
                 <!-- Right Side: Calculations -->
                 <div id="right-column" class="space-y-2 flex flex-col">
                      <div id="field-primary-input" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800" id="primary-input-label">($/Mile)</label>
-                        <input type="number" id="primary-input" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200" id="primary-input-label">($/Mile)</label>
+                        <input type="number" step="0.01" id="primary-input" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                      <div id="field-tonnage" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800">Tonnage</label>
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Tonnage</label>
                         <input type="number" id="tonnage" value="23" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                     <div id="field-fsc" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800">FSC (%)</label>
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">FSC (%)</label>
                         <input type="number" id="fsc" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
-                    <hr id="field-hr" class="border-gray-600 my-1">
+                    <hr id="field-hr" class="border-gray-600 dark:border-gray-500 my-1">
                     <div id="field-primary-output" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800" id="primary-output-label">($/Ton)</label>
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200" id="primary-output-label">($/Ton)</label>
                         <input type="text" id="primary-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                      <div id="field-fsc-total" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800">FSC Total</label>
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">FSC Total</label>
                         <input type="text" id="fsc-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                      <div id="field-final-total" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800">Final Total</label>
+                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Final Total</label>
                         <input type="text" id="final-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                 </div>
             </div>
             <div class="flex items-center justify-between mt-4">
                  <div class="d-pad">
-                    <button data-key="ArrowUp" class="d-pad-btn up"></button>
-                    <button data-key="ArrowLeft" class="d-pad-btn left"></button>
+                    <button type="button" data-key="ArrowUp" class="d-pad-btn up"></button>
+                    <button type="button" data-key="ArrowLeft" class="d-pad-btn left"></button>
                     <div class="d-pad-btn center"></div>
-                    <button data-key="ArrowRight" class="d-pad-btn right"></button>
-                    <button data-key="ArrowDown" class="d-pad-btn down"></button>
+                    <button type="button" data-key="ArrowRight" class="d-pad-btn right"></button>
+                    <button type="button" data-key="ArrowDown" class="d-pad-btn down"></button>
                 </div>
                 <div class="flex flex-col space-y-2">
                     <button type="button" id="emailButton" class="action-btn btn-email text-xs">Email</button>
@@ -280,12 +273,13 @@
                     <button type="button" id="resetButton" class="action-btn btn-reset text-xs">Reset</button>
                 </div>
                  <div class="ab-buttons">
-                    <button data-key="b" class="ab-btn">B</button>
-                    <button data-key="a" class="ab-btn">A</button>
+                    <button type="button" data-key="b" class="ab-btn">B</button>
+                    <button type="button" data-key="a" class="ab-btn">A</button>
                 </div>
             </div>
-            <p id="api-error" class="text-red-800 text-sm text-center mt-2 hidden"></p>
-            <button type="button" id="manual-mode-btn" class="text-xs text-gray-800 hover:underline text-center w-full mt-2">Switch to Route Planner</button>
+             <p id="api-error" class="text-red-800 text-sm text-center mt-2 hidden"></p>
+             <div id="copyNotification" class="text-center text-green-700 dark:text-green-400 font-semibold mt-2 h-6 opacity-0 transition-opacity duration-300"></div>
+             <button type="button" id="manual-mode-btn" class="text-xs text-gray-800 dark:text-gray-200 hover:underline text-center w-full mt-2">Switch to Route Planner</button>
         </form>
     </div>
 
@@ -312,46 +306,138 @@
     
     <script>
         // --- DOM Element Selection ---
-        const mainTitle = document.getElementById('main-title');
-        const openMenuBtn = document.getElementById('open-menu-btn');
-        const sideMenu = document.getElementById('side-menu');
-        const menuOverlay = document.getElementById('menu-overlay');
-        const closeMenuBtn = document.getElementById('close-menu-btn');
-        const modeButtons = Array.from(document.querySelectorAll('.mode-btn'));
-        const modeSlider = document.getElementById('mode-slider');
-        const emailButton = document.getElementById('emailButton');
-        const printButton = document.getElementById('printButton');
-        const copyButton = document.getElementById('copyButton');
-        const resetButton = document.getElementById('resetButton');
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const personalCalcCounter = document.getElementById('personal-calc-counter');
+        const form = document.getElementById('rateCalculatorForm');
+        const primaryInput = document.getElementById('primary-input');
         const primaryInputLabel = document.getElementById('primary-input-label');
         const primaryOutputLabel = document.getElementById('primary-output-label');
-        const rightColumn = document.getElementById('right-column');
-        const fieldPrimaryInput = document.getElementById('field-primary-input');
-        const fieldTonnage = document.getElementById('field-tonnage');
-        const fieldFsc = document.getElementById('field-fsc');
-        const fieldHr = document.getElementById('field-hr');
-        const fieldPrimaryOutput = document.getElementById('field-primary-output');
-        const fieldFscTotal = document.getElementById('field-fsc-total');
-        const fieldFinalTotal = document.getElementById('field-final-total');
-        const bButton = document.querySelector('.ab-btn[data-key="b"]');
-        const form = document.getElementById('rateCalculatorForm');
+        const milesInput = document.getElementById('miles');
         const tonnageInput = document.getElementById('tonnage');
+        const fscInput = document.getElementById('fsc');
+        const primaryOutput = document.getElementById('primary-output');
+        const fscTotal = document.getElementById('fsc-total');
+        const finalTotal = document.getElementById('final-total');
+        const copyButton = document.getElementById('copyButton');
+        const resetButton = document.getElementById('resetButton');
+        const printButton = document.getElementById('printButton');
+        const emailButton = document.getElementById('emailButton');
+        const copyNotification = document.getElementById('copyNotification');
+        const copySource = document.getElementById('copySource');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const transitionCanvas = document.getElementById('transition-canvas');
+        const mainTitle = document.getElementById('main-title');
+        const openMenuBtn = document.getElementById('open-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const sideMenu = document.getElementById('side-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const mainMenu = document.getElementById('main-menu');
+        const historyView = document.getElementById('history-view');
+        const feedbackView = document.getElementById('feedback-view');
+        const historyMenuBtn = document.getElementById('history-menu-btn');
+        const feedbackMenuBtn = document.getElementById('feedback-menu-btn');
+        const backToMenuHist = document.getElementById('back-to-menu-hist');
+        const backToMenuFeed = document.getElementById('back-to-menu-feed');
+        const historyList = document.getElementById('history-list');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+        const feedbackForm = document.getElementById('feedback-form');
+        const personalCalcCounter = document.getElementById('personal-calc-counter');
+        const modeSelectorContainer = document.getElementById('mode-selector-container');
+        const modeSlider = document.getElementById('mode-slider');
+        const modeButtons = Array.from(modeSelectorContainer.querySelectorAll('.mode-btn'));
         const apiKeyInput = document.getElementById('apiKeyInput');
         const manualModeBtn = document.getElementById('manual-mode-btn');
         const pcmilerInputs = document.getElementById('pcmiler-inputs');
         const manualMilesInput = document.getElementById('manual-miles-input');
         
+        // --- State Management ---
+        let currentMode = 'generateQuote';
+        let calculationHistory = JSON.parse(localStorage.getItem('thompsonCalcHistory_v3')) || [];
+        let personalCalcCount = parseInt(localStorage.getItem('thompsonPersonalCalcCount_v3')) || 0;
+
         // --- Konami Code & Sound Logic ---
         const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
         let konamiIndex = 0;
+        
+        async function playRetroMusic() {
+            try {
+                await Tone.start();
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "square" },
+                    envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.1 }
+                }).toDestination();
+                const now = Tone.now();
+                synth.triggerAttackRelease("C#3", "8n", now);
+                synth.triggerAttackRelease("G#2", "8n", now + 0.25);
+            } catch (e) {
+                console.error("Tone.js could not start. User interaction might be required.", e);
+            }
+        }
+        
+        async function playPowerDownSound() {
+            try {
+                await Tone.start();
+                const synth = new Tone.Synth({
+                    oscillator: { type: "sawtooth" },
+                    envelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.1 }
+                }).toDestination();
+                synth.triggerAttackRelease("C4", "4n");
+                synth.frequency.rampTo("C2", 0.5);
+            } catch (e) {
+                console.error("Tone.js could not start.", e);
+            }
+        }
+
+        function runAcidRain() {
+            transitionCanvas.classList.remove('hidden');
+            const ctx = transitionCanvas.getContext('2d');
+            let w = transitionCanvas.width = window.innerWidth;
+            let h = transitionCanvas.height = window.innerHeight;
+            let cols = Math.floor(w / 20) + 1;
+            let ypos = Array(cols).fill(0);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, w, h);
+            let animFrame;
+            function matrix() {
+                ctx.fillStyle = 'rgba(0,0,0,0.05)';
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = '#4ade80';
+                ctx.font = '15pt monospace';
+                ypos.forEach((y, ind) => {
+                    const text = String.fromCharCode(Math.random() * 128);
+                    const x = ind * 20;
+                    ctx.fillText(text, x, y);
+                    if (y > 100 + Math.random() * 10000) ypos[ind] = 0;
+                    else ypos[ind] = y + 20;
+                });
+            }
+            animFrame = setInterval(matrix, 50);
+            setTimeout(() => {
+                clearInterval(animFrame);
+                let opacity = 1;
+                const fadeOut = setInterval(() => {
+                    ctx.fillStyle = `rgba(0,0,0,${opacity * 0.1})`;
+                    ctx.fillRect(0, 0, w, h);
+                    opacity -= 0.1;
+                    if (opacity <= 0) {
+                        clearInterval(fadeOut);
+                        transitionCanvas.classList.add('hidden');
+                    }
+                }, 50);
+            }, 2000);
+        }
 
         function handleKonami(key) {
-             if (key === konamiCode[konamiIndex]) {
+            if (key === konamiCode[konamiIndex]) {
                 konamiIndex++;
                 if (konamiIndex === konamiCode.length) {
-                    document.body.classList.toggle('retro-mode');
+                    const isRetro = document.body.classList.toggle('retro-mode');
+                    if (isRetro) {
+                        runAcidRain();
+                        playRetroMusic();
+                    } else {
+                        playPowerDownSound();
+                    }
                     konamiIndex = 0;
                 }
             } else {
@@ -360,7 +446,6 @@
         }
 
         window.addEventListener('keydown', (e) => handleKonami(e.key));
-        
         document.querySelectorAll('.d-pad-btn, .ab-btn').forEach(btn => {
             btn.addEventListener('click', () => handleKonami(btn.dataset.key));
         });
@@ -372,16 +457,20 @@
             clearTimeout(hornTimeout);
             hornClickCount++;
             if (hornClickCount === 5) {
-                await Tone.start();
-                const horn = new Tone.Oscillator(185, "sawtooth").toDestination();
-                horn.volume.value = -12;
-                horn.start().stop("+0.8");
-                hornClickCount = 0;
+                try {
+                    await Tone.start();
+                    const horn = new Tone.Oscillator(185, "sawtooth").toDestination();
+                    horn.volume.value = -12;
+                    horn.start().stop("+0.8");
+                    hornClickCount = 0;
+                } catch(e) {
+                    console.error("Tone.js could not start.", e);
+                }
             }
             hornTimeout = setTimeout(() => { hornClickCount = 0; }, 2000);
         });
-
-        // --- Menu Logic ---
+        
+        // --- Menu, Theme, History, and Feedback Logic ---
         function openMenu() {
             sideMenu.classList.remove('-translate-x-full');
             menuOverlay.classList.remove('hidden');
@@ -390,24 +479,94 @@
         function closeMenu() {
             sideMenu.classList.add('-translate-x-full');
             menuOverlay.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+            historyView.classList.add('hidden');
+            feedbackView.classList.add('hidden');
         }
 
         openMenuBtn.addEventListener('click', openMenu);
         closeMenuBtn.addEventListener('click', closeMenu);
         menuOverlay.addEventListener('click', closeMenu);
+
+        historyMenuBtn.addEventListener('click', (e) => { e.preventDefault(); mainMenu.classList.add('hidden'); historyView.classList.remove('hidden'); renderHistory(); });
+        feedbackMenuBtn.addEventListener('click', (e) => { e.preventDefault(); mainMenu.classList.add('hidden'); feedbackView.classList.remove('hidden'); });
+        backToMenuHist.addEventListener('click', () => { historyView.classList.add('hidden'); mainMenu.classList.remove('hidden'); });
+        backToMenuFeed.addEventListener('click', () => { feedbackView.classList.add('hidden'); mainMenu.classList.remove('hidden'); });
         
-        // --- Mode Selector Logic ---
-        let currentMode = 'generateQuote';
+        function updateThemeIcon(isDarkMode) {
+            themeToggleDarkIcon.classList.toggle('hidden', !isDarkMode);
+            themeToggleLightIcon.classList.toggle('hidden', isDarkMode);
+        }
+
+        themeToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.documentElement.classList.toggle('dark');
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateThemeIcon(isDarkMode);
+        });
         
+        function updatePersonalCounterDisplay() {
+            personalCalcCounter.textContent = personalCalcCount.toLocaleString();
+        }
+        
+        function saveCalculation() {
+            const pInput = parseFloat(primaryInput.value) || 0;
+            const miles = parseFloat(milesInput.value) || 0;
+            if (pInput > 0 && miles > 0) {
+                const calculation = { mode: currentMode, primaryInput: primaryInput.value, miles: milesInput.value, tonnage: tonnageInput.value, fsc: fscInput.value, timestamp: new Date().toISOString() };
+                calculationHistory.unshift(calculation);
+                calculationHistory = calculationHistory.slice(0, 10);
+                localStorage.setItem('thompsonCalcHistory_v3', JSON.stringify(calculationHistory));
+                personalCalcCount++;
+                localStorage.setItem('thompsonPersonalCalcCount_v3', personalCalcCount);
+                updatePersonalCounterDisplay();
+            }
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No recent calculations.</p>`;
+                return;
+            }
+            calculationHistory.forEach((calc, index) => {
+                const { yourRateValue, offerValue, modeLabel } = getSummaryText(calc);
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700';
+                button.innerHTML = `<div class="font-bold text-gray-800 dark:text-gray-200">${modeLabel}</div><div class="text-sm text-gray-600 dark:text-gray-400">Rate: ${yourRateValue} | Offer: ${offerValue}</div>`;
+                button.onclick = () => { loadFromHistory(index); closeMenu(); };
+                historyList.appendChild(button);
+            });
+        }
+
+        function loadFromHistory(index) {
+            const calc = calculationHistory[index];
+            setMode(calc.mode);
+            primaryInput.value = calc.primaryInput;
+            milesInput.value = calc.miles;
+            tonnageInput.value = calc.tonnage || 23;
+            fscInput.value = calc.fsc;
+            calculate();
+        }
+        
+        clearHistoryBtn.addEventListener('click', () => { calculationHistory = []; localStorage.removeItem('thompsonCalcHistory_v3'); renderHistory(); });
+        
+        feedbackForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = document.getElementById('feedback-message').value;
+            if (message.trim()) {
+                window.location.href = `mailto:mgardner@thompsontrans.net?subject=Feedback%20for%20Freight%20Calculator%20v3&body=${encodeURIComponent(message)}`;
+            }
+        });
+
+        // --- Main App Logic ---
         function setMode(newMode) {
             currentMode = newMode;
-            
             const activeButton = modeButtons.find(btn => btn.dataset.mode === newMode);
-            
             modeButtons.forEach(btn => btn.classList.remove('active'));
             activeButton.classList.add('active');
 
-            // Animate slider
             const { offsetLeft, offsetWidth } = activeButton;
             modeSlider.style.width = `${offsetWidth}px`;
             modeSlider.style.transform = `translateX(${offsetLeft}px)`;
@@ -415,71 +574,223 @@
             emailButton.classList.toggle('hidden', newMode !== 'generateQuote');
             printButton.classList.toggle('hidden', newMode === 'generateQuote');
 
-            // Update labels and field order based on mode
-             switch (newMode) {
+            const isFlatMode = newMode === 'calculateFromFlat';
+            tonnageInput.disabled = isFlatMode;
+            tonnageInput.classList.toggle('opacity-50', isFlatMode);
+            
+            switch (newMode) {
                 case 'generateQuote':
                     primaryInputLabel.textContent = '($/Mile)';
                     primaryOutputLabel.textContent = '($/Ton)';
-                    rightColumn.append(fieldPrimaryInput, fieldTonnage, fieldFsc, fieldHr, fieldPrimaryOutput, fieldFscTotal, fieldFinalTotal);
                     break;
                 case 'calculateFromTon':
                     primaryInputLabel.textContent = '($/Ton)';
                     primaryOutputLabel.textContent = '($/Mile)';
-                    rightColumn.append(fieldPrimaryInput, fieldTonnage, fieldFsc, fieldHr, fieldPrimaryOutput, fieldFscTotal, fieldFinalTotal);
                     break;
                 case 'calculateFromFlat':
                     primaryInputLabel.textContent = 'Flat Rate ($)';
                     primaryOutputLabel.textContent = '($/Mile)';
-                    rightColumn.append(fieldPrimaryInput, fieldFsc, fieldTonnage, fieldHr, fieldPrimaryOutput, fieldFscTotal, fieldFinalTotal);
                     break;
             }
             resetCalculator();
         }
-
-        modeButtons.forEach(button => {
-            button.addEventListener('click', () => setMode(button.dataset.mode));
-        });
         
-        // --- Reset Logic ---
-        function resetCalculator() {
-            form.reset();
-            tonnageInput.value = 23;
-            // Add any other fields that need resetting here
-            // calculate(); // Recalculate with empty fields
+        // FIXED: Added event listeners for mode buttons
+        modeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                setMode(button.dataset.mode);
+            });
+        });
+
+        function calculate() {
+            const pInput = parseFloat(primaryInput.value) || 0;
+            const miles = parseFloat(milesInput.value) || 0;
+            const tonnage = parseFloat(tonnageInput.value) || (currentMode === 'calculateFromFlat' ? 0 : 23);
+            const fscPercent = parseFloat(fscInput.value) || 0;
+            let lineHaul = 0, pOutput = 0;
+
+            switch (currentMode) {
+                case 'generateQuote': lineHaul = pInput * miles; break;
+                case 'calculateFromTon': lineHaul = pInput * tonnage; break;
+                case 'calculateFromFlat': lineHaul = pInput; break;
+            }
+
+            const fscAmount = lineHaul * (fscPercent / 100);
+            const total = lineHaul + fscAmount;
+
+            switch (currentMode) {
+                case 'generateQuote': pOutput = total > 0 && tonnage > 0 ? total / tonnage : 0; break;
+                case 'calculateFromTon':
+                case 'calculateFromFlat': pOutput = total > 0 && miles > 0 ? total / miles : 0; break;
+            }
+            
+            animateValue(primaryOutput, pOutput);
+            animateValue(fscTotal, fscAmount);
+            animateValue(finalTotal, total);
+        }
+        
+        function animateValue(element, end) {
+            let start = parseFloat(element.value.replace(/[^0-9.-]+/g,"")) || 0;
+            if (Math.abs(start - end) < 0.01) {
+                element.value = end > 0.005 ? end.toFixed(2) : '';
+                return;
+            }
+            let startTimestamp = null;
+            const duration = 300;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentValue = progress * (end - start) + start;
+                element.value = currentValue > 0.005 ? currentValue.toFixed(2) : '';
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    element.value = end.toFixed(2);
+                }
+            };
+            window.requestAnimationFrame(step);
         }
 
+        function getSummaryText(calcData = null) {
+            const data = calcData || { mode: currentMode, primaryInput: primaryInput.value, miles: milesInput.value, tonnage: tonnageInput.value, fsc: fscInput.value };
+            const pInput = parseFloat(data.primaryInput) || 0;
+            const miles = parseFloat(data.miles) || 0;
+            const tonnage = parseFloat(data.tonnage) || 23;
+            const fscPercent = parseFloat(data.fsc) || 0;
+            let lineHaul = 0, pOutput = 0;
+            switch (data.mode) {
+                case 'generateQuote': lineHaul = pInput * miles; break;
+                case 'calculateFromTon': lineHaul = pInput * tonnage; break;
+                case 'calculateFromFlat': lineHaul = pInput; break;
+            }
+            const fscAmount = lineHaul * (fscPercent / 100);
+            const total = lineHaul + fscAmount;
+            
+            switch (data.mode) {
+                case 'generateQuote': pOutput = total > 0 && tonnage > 0 ? total / tonnage : 0; break;
+                case 'calculateFromTon':
+                case 'calculateFromFlat': pOutput = miles > 0 ? total / miles : 0; break;
+            }
+            let yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel;
+            if (data.mode === 'generateQuote') {
+                modeLabel = 'Generate Quote';
+                yourRateLabel = 'Your Rate:';
+                yourRateValue = `$${pInput.toFixed(2)} / mile`;
+                offerLabel = 'Quote to Customer:';
+                offerValue = `$${pOutput.toFixed(2)} / ton`;
+            } else {
+                yourRateLabel = 'Your Calculated Rate:';
+                yourRateValue = `$${pOutput.toFixed(2)} / mile`;
+                offerLabel = 'Customer Offer:';
+                if (data.mode === 'calculateFromTon') {
+                    modeLabel = 'Calc from Ton';
+                    offerValue = `$${pInput.toFixed(2)} / ton`;
+                } else {
+                    modeLabel = 'Calc from Flat';
+                    offerValue = `$${pInput.toFixed(2)} (Flat)`;
+                }
+            }
+            return { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal: fscAmount.toFixed(2), finalTotal: total.toFixed(2) };
+        }
+
+        function resetCalculator() {
+            form.reset();
+            tonnageInput.value = (currentMode === 'calculateFromFlat') ? '' : 23;
+            calculate();
+        }
+        
         resetButton.addEventListener('click', resetCalculator);
-        bButton.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent form submission
+        document.querySelector('.ab-btn[data-key="b"]').addEventListener('click', (e) => {
+            e.preventDefault();
             resetCalculator();
         });
 
+        // --- Event Listeners for Calculation and Actions ---
+        [primaryInput, milesInput, tonnageInput, fscInput].forEach(input => input.addEventListener('input', calculate));
+        
+        let saveTimeout;
+        form.addEventListener('input', () => { 
+            clearTimeout(saveTimeout); 
+            saveTimeout = setTimeout(saveCalculation, 1500); 
+        });
 
+        copyButton.addEventListener('click', () => {
+            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText();
+            const summary = `Freight Calculation Summary:\n- Mode: ${modeLabel}\n- Miles: ${milesInput.value || 'N/A'}\n- Tonnage: ${tonnageInput.value || 'N/A'}\n- FSC: ${fscInput.value || 0}%\n---\n- Final Total: $${finalTotal}\n- FSC Amount: $${fscTotal}\n---\n- ${yourRateLabel} ${yourRateValue}\n- ${offerLabel} ${offerValue}`.trim();
+            copySource.value = summary;
+            copySource.select();
+            document.execCommand('copy');
+            copyNotification.textContent = 'Copied to clipboard!';
+            copyNotification.style.opacity = '1';
+            setTimeout(() => { copyNotification.style.opacity = '0'; }, 2000);
+        });
+        
+        emailButton.addEventListener('click', () => {
+             const { offerValue } = getSummaryText();
+             const subject = "Freight Quote";
+             const body = `Hello,\n\nFollowing up on your request, here is our all-inclusive quote for the lane:\n\nRate: ${offerValue}\n\nPlease let us know if you have any questions.\n\nThank you,\nThompson Transportation`;
+             window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        });
+
+        printButton.addEventListener('click', () => {
+            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText();
+            document.getElementById('print-date').textContent = new Date().toLocaleDateString();
+            document.getElementById('print-mode').textContent = modeLabel;
+            document.getElementById('print-miles').textContent = milesInput.value || 'N/A';
+            document.getElementById('print-tonnage').textContent = tonnageInput.value || 'N/A';
+            document.getElementById('print-fsc').textContent = `${fscInput.value || 0}%`;
+            document.querySelector('#print-your-rate-row strong').textContent = yourRateLabel;
+            document.getElementById('print-your-rate').textContent = yourRateValue;
+            document.querySelector('#print-offer-row strong').textContent = offerLabel;
+            document.getElementById('print-offer').textContent = offerValue;
+            document.getElementById('print-fsc-total').textContent = `$${fscTotal}`;
+            document.getElementById('print-final-total').textContent = `$${finalTotal}`;
+            window.print();
+        });
+        
         // --- Initial Setup ---
-        apiKeyInput.value = localStorage.getItem('pcmilerApiKey') || '';
+        function initialSetup() {
+            apiKeyInput.value = localStorage.getItem('pcmilerApiKey') || '';
+            checkApiOrManual(); 
+            updatePersonalCounterDisplay();
+            const savedTheme = localStorage.getItem('theme');
+            const isDarkMode = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDarkMode) document.documentElement.classList.add('dark');
+            updateThemeIcon(isDarkMode);
+            setMode('generateQuote');
+        }
 
-        function checkApiKey() {
-            if (apiKeyInput.value.trim()) {
+        function checkApiOrManual() {
+            const hasKey = apiKeyInput.value.trim().length > 0;
+            const manualIsHidden = manualMilesInput.classList.contains('hidden');
+
+            if (hasKey && manualIsHidden) {
+                // API key exists, show route planner
                 pcmilerInputs.classList.remove('hidden');
                 manualMilesInput.classList.add('hidden');
+                manualModeBtn.textContent = 'Switch to Manual Miles';
             } else {
+                // No API key or already in manual mode
                 pcmilerInputs.classList.add('hidden');
                 manualMilesInput.classList.remove('hidden');
+                manualModeBtn.textContent = hasKey ? 'Switch to Route Planner' : 'Route Planner (API Key Needed)';
+                manualModeBtn.disabled = !hasKey;
             }
         }
 
         apiKeyInput.addEventListener('input', () => {
             localStorage.setItem('pcmilerApiKey', apiKeyInput.value);
-            checkApiKey();
+            checkApiOrManual();
         });
 
         manualModeBtn.addEventListener('click', () => {
             pcmilerInputs.classList.toggle('hidden');
             manualMilesInput.classList.toggle('hidden');
+            checkApiOrManual();
         });
 
-        checkApiKey();
-        setMode('generateQuote'); // Set initial mode
+        initialSetup();
     </script>
 </body>
 </html>
