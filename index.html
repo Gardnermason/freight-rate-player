@@ -21,8 +21,8 @@
         /* --- Base and Theming Styles --- */
         body { 
             font-family: 'Roboto', sans-serif; 
-            background-color: #14b8a6; /* Teal background */
-            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+            background-color: #f3f4f6; /* Light gray page background */
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
             background-attachment: fixed;
             transition: background-color 0.3s ease;
         }
@@ -30,13 +30,22 @@
             background-color: #1f2937;
              background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
         }
+        #calculator-ui { background-color: #e0e0d8; }
+        .dark #calculator-ui { background-color: #374151; }
+        
+        #map-container { background-color: #9bbc0f; border-color: #4b5563; }
+        .dark #map-container { background-color: #1f2937; border-color: #4b5563; }
+
         .main-title { font-family: 'Press Start 2P', cursive; cursor: pointer; }
+        
+        .gb-text { color: #1f2937; }
+        .dark .gb-text { color: #e5e7eb; }
         
         /* --- Form and Input Styles --- */
         .form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); border-color: #3b82f6 !important; }
-        .editable-field { background-color: white; color: #111827; border-color: #9ca3af; }
+        .editable-field { background-color: #e0e0d8; color: #111827; border-color: #4b5563; }
         .dark .editable-field { background-color: #374151; color: white; border-color: #4b5563; }
-        .output-field { background-color: #d1d5db; font-weight: bold; border-color: #9ca3af; }
+        .output-field { background-color: #c8c8c0; font-weight: bold; border-color: #4b5563; }
         .dark .output-field { background-color: #1f2937; color: #e5e7eb; border-color: #4b5563; }
 
         /* --- Side Menu --- */
@@ -44,32 +53,45 @@
 
         /* --- Controller UI Styles (D-Pad, AB Buttons) --- */
         .d-pad { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 120px; height: 120px; }
-        .d-pad-btn { background-color: #374151; transition: background-color 0.2s; }
+        .d-pad-btn { background-color: #1f2937; transition: background-color 0.2s; } /* Dark gray for light mode */
+        .dark .d-pad-btn { background-color: #374151; }
         .d-pad-btn:active { background-color: #4b5563; }
+        .dark .d-pad-btn:active { background-color: #4b5563; }
         .up { grid-column: 2; grid-row: 1; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
         .left { grid-column: 1; grid-row: 2; clip-path: polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%);}
         .center { grid-column: 2; grid-row: 2; }
         .right { grid-column: 3; grid-row: 2; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
         .down { grid-column: 2; grid-row: 3; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
+        
         .ab-buttons { display: flex; align-items: center; gap: 1rem; }
-        .ab-btn { width: 50px; height: 50px; border-radius: 50%; background-color: #7e22ce; color: white; font-family: 'Bungee', sans-serif; text-align: center; line-height: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: background-color 0.2s; font-size: 1.25rem; }
-        .ab-btn:active { background-color: #9333ea; }
+        .ab-btn { 
+            width: 50px; height: 50px; border-radius: 50%; 
+            background-color: #ab2946; /* Game Boy Red for light mode */
+            color: white; font-family: 'Bungee', sans-serif; 
+            text-align: center; line-height: 50px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+            transition: background-color 0.2s; font-size: 1.25rem; 
+        }
+        .dark .ab-btn { background-color: #7e22ce; } /* Purple for dark mode */
+        .ab-btn:active { background-color: #c94a69; } /* Lighter Red for active */
+        .dark .ab-btn:active { background-color: #9333ea; } /* Lighter purple for active */
         
         /* --- Action Buttons (Email, Print, etc.) --- */
         .action-btn {
             display: inline-flex; align-items: center; justify-content: center;
             gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 9999px;
-            font-weight: bold; color: #4b5563; background-color: #9ca3af;
-            border: 2px solid #4b5563; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-weight: bold; color: #f3f4f6; background-color: #4b5563;
+            border: 2px solid #1f2937; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: all 0.2s ease-in-out;
         }
+        .dark .action-btn { color: #4b5563; background-color: #9ca3af; border: 2px solid #4b5563; }
         .action-btn:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         
         /* --- Mode Selector (Quote, Ton, Flat) --- */
         #mode-selector-container { background-color: transparent; }
-        .mode-btn { color: #4b5563; transition: color 0.3s ease-in-out; z-index: 10; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; }
+        .mode-btn { color: #1f2937; transition: color 0.3s ease-in-out; z-index: 10; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; } /* Darker text */
         .dark .mode-btn { color: #9ca3af; }
-        .mode-btn.active { color: #1f2937; }
+        .mode-btn.active { color: #111827; } /* Darkest text */
         .dark .mode-btn.active { color: #f9fafb; }
         #mode-slider { background-color: #9ca3af; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 5; border-radius: 9999px; }
         .dark #mode-slider { background-color: #4b5563; }
@@ -87,7 +109,7 @@
             background: #000 !important; border: 4px solid #4ade80 !important;
             box-shadow: none !important; border-radius: 0 !important;
         }
-        .retro-mode .main-title, .retro-mode .font-bold, .retro-mode .text-gray-800, .retro-mode .mode-btn, .dark.retro-mode .mode-btn {
+        .retro-mode .main-title, .retro-mode .font-bold, .retro-mode .gb-text, .retro-mode .mode-btn, .dark.retro-mode .mode-btn {
             color: #4ade80 !important; text-shadow: 2px 2px #000;
         }
         .retro-mode .mode-btn.active { color: #000 !important; }
@@ -186,20 +208,20 @@
     </div>
 
     <!-- Main Calculator UI -->
-    <div id="calculator-ui" class="w-full max-w-md mx-auto bg-teal-500 dark:bg-gray-700 p-6 rounded-2xl shadow-2xl border-4 border-gray-600 dark:border-gray-500">
+    <div id="calculator-ui" class="w-full max-w-sm mx-auto p-6 rounded-2xl shadow-2xl border-4 border-gray-400 dark:border-gray-500">
         <div class="flex justify-between items-center">
-             <button id="open-menu-btn" type="button" class="p-1 text-gray-800 dark:text-gray-200 rounded-lg">
+             <button id="open-menu-btn" type="button" class="p-1 gb-text rounded-lg">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h1 id="main-title" class="main-title text-center text-lg text-gray-800 dark:text-gray-200">Thompson Transportation</h1>
+            <h1 id="main-title" class="main-title text-center text-lg gb-text">Thompson Transportation</h1>
             <div class="w-8"></div>
         </div>
         
         <!-- Screen Area -->
-        <div id="map-container" class="my-4 bg-gray-800 border-4 border-gray-600 rounded-lg aspect-video flex items-center justify-center text-gray-400">
+        <div id="map-container" class="my-4 rounded-lg aspect-square flex items-center justify-center">
             <img id="map-image" src="" alt="Route map" class="object-contain h-full w-full rounded-lg hidden">
             <div id="map-loader" class="spinner hidden"></div>
-            <span id="map-placeholder">Route map will be displayed here</span>
+            <span id="map-placeholder" class="gb-text">Route map will be displayed here</span>
         </div>
         
         <form id="rateCalculatorForm" onsubmit="return false;">
@@ -218,13 +240,13 @@
                     <input type="text" id="stop2" placeholder="P/U Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
                     <input type="text" id="stop3" placeholder="Del. Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
                     <div class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Total Miles</label>
+                        <label class="font-bold text-sm gb-text">Total Miles</label>
                         <input type="number" id="total-miles-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed" placeholder="0">
                     </div>
                 </div>
                 <div id="manual-miles-input" class="space-y-2">
                      <div class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Total Miles</label>
+                        <label class="font-bold text-sm gb-text">Total Miles</label>
                         <input type="number" id="miles" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                 </div>
@@ -232,28 +254,28 @@
                 <!-- Right Side: Calculations -->
                 <div id="right-column" class="space-y-2 flex flex-col">
                      <div id="field-primary-input" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200" id="primary-input-label">($/Mile)</label>
+                        <label class="font-bold text-sm gb-text" id="primary-input-label">($/Mile)</label>
                         <input type="number" step="0.01" id="primary-input" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                      <div id="field-tonnage" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Tonnage</label>
+                        <label class="font-bold text-sm gb-text">Tonnage</label>
                         <input type="number" id="tonnage" value="23" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                     <div id="field-fsc" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">FSC (%)</label>
+                        <label class="font-bold text-sm gb-text">FSC (%)</label>
                         <input type="number" id="fsc" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                     <hr id="field-hr" class="border-gray-600 dark:border-gray-500 my-1">
                     <div id="field-primary-output" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200" id="primary-output-label">($/Ton)</label>
+                        <label class="font-bold text-sm gb-text" id="primary-output-label">($/Ton)</label>
                         <input type="text" id="primary-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                      <div id="field-fsc-total" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">FSC Total</label>
+                        <label class="font-bold text-sm gb-text">FSC Total</label>
                         <input type="text" id="fsc-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                      <div id="field-final-total" class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-gray-800 dark:text-gray-200">Final Total</label>
+                        <label class="font-bold text-sm gb-text">Final Total</label>
                         <input type="text" id="final-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                 </div>
@@ -279,7 +301,7 @@
             </div>
              <p id="api-error" class="text-red-800 text-sm text-center mt-2 hidden"></p>
              <div id="copyNotification" class="text-center text-green-700 dark:text-green-400 font-semibold mt-2 h-6 opacity-0 transition-opacity duration-300"></div>
-             <button type="button" id="manual-mode-btn" class="text-xs text-gray-800 dark:text-gray-200 hover:underline text-center w-full mt-2">Switch to Route Planner</button>
+             <button type="button" id="manual-mode-btn" class="text-xs gb-text hover:underline text-center w-full mt-2">Switch to Route Planner</button>
         </form>
     </div>
 
@@ -595,7 +617,6 @@
             resetCalculator();
         }
         
-        // FIXED: Added event listeners for mode buttons
         modeButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
