@@ -208,13 +208,13 @@
     </div>
 
     <!-- Main Calculator UI -->
-    <div id="calculator-ui" class="w-full max-w-md mx-auto p-6 rounded-2xl shadow-2xl border-4 border-gray-400 dark:border-gray-500">
+    <div id="calculator-ui" class="w-full max-w-sm mx-auto p-4 rounded-2xl shadow-2xl border-4 border-gray-400 dark:border-gray-500">
         <div class="flex justify-between items-center">
              <button id="open-menu-btn" type="button" class="p-1 gb-text rounded-lg">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h1 id="main-title" class="main-title text-center text-lg gb-text">Thompson Transportation</h1>
-            <div class="w-8"></div>
+            <h1 id="main-title" class="main-title text-center text-sm gb-text">Thompson Transportation</h1>
+            <div class="w-6"></div>
         </div>
         
         <!-- Screen Area -->
@@ -226,7 +226,7 @@
         
         <form id="rateCalculatorForm" onsubmit="return false;">
             <!-- Mode Selector -->
-            <div id="mode-selector-container" class="relative grid grid-cols-3 gap-2 mb-4 p-1 rounded-full">
+            <div id="mode-selector-container" class="relative grid grid-cols-3 gap-2 mb-3 p-1 rounded-full">
                 <div id="mode-slider" class="absolute top-1 bottom-1 left-1 w-1/3 rounded-full"></div>
                 <button type="button" data-mode="generateQuote" class="mode-btn py-1 px-1 rounded-full">Quote</button>
                 <button type="button" data-mode="calculateFromTon" class="mode-btn py-1 px-1 rounded-full">Ton</button>
@@ -235,48 +235,48 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <!-- Left Side: Locations / Manual Miles -->
-                <div id="pcmiler-inputs" class="space-y-2 hidden">
-                    <input type="text" id="stop1" placeholder="First Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
-                    <input type="text" id="stop2" placeholder="P/U Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
-                    <input type="text" id="stop3" placeholder="Del. Location" class="form-input editable-field w-full p-2 font-semibold border-2 rounded-lg shadow-inner">
-                    <div class="flex items-center justify-between">
+                <div id="pcmiler-inputs" class="space-y-1 hidden">
+                    <input type="text" id="stop1" placeholder="Origin" class="form-input editable-field w-full p-1.5 text-sm font-semibold border-2 rounded-lg shadow-inner">
+                    <input type="text" id="stop2" placeholder="P/U Location" class="form-input editable-field w-full p-1.5 text-sm font-semibold border-2 rounded-lg shadow-inner">
+                    <input type="text" id="stop3" placeholder="Del. Location" class="form-input editable-field w-full p-1.5 text-sm font-semibold border-2 rounded-lg shadow-inner">
+                    <div class="flex items-center justify-between pt-1">
                         <label class="font-bold text-sm gb-text">Total Miles</label>
-                        <input type="number" id="total-miles-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed" placeholder="0">
+                        <input type="number" id="total-miles-output" class="form-input output-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                 </div>
-                <div id="manual-miles-input" class="space-y-2">
+                <div id="manual-miles-input" class="space-y-1">
                      <div class="flex items-center justify-between">
                         <label class="font-bold text-sm gb-text">Total Miles</label>
-                        <input type="number" id="miles" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                        <input type="number" id="miles" class="form-input editable-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                 </div>
 
                 <!-- Right Side: Calculations -->
-                <div id="right-column" class="space-y-2 flex flex-col">
+                <div id="right-column" class="space-y-1 flex flex-col">
                      <div id="field-primary-input" class="flex items-center justify-between">
                         <label class="font-bold text-sm gb-text" id="primary-input-label">($/Mile)</label>
-                        <input type="number" step="0.01" id="primary-input" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                        <input type="number" step="0.01" id="primary-input" class="form-input editable-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                      <div id="field-tonnage" class="flex items-center justify-between">
                         <label class="font-bold text-sm gb-text">Tonnage</label>
-                        <input type="number" id="tonnage" value="23" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                        <input type="number" id="tonnage" value="23" class="form-input editable-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                     <div id="field-fsc" class="flex items-center justify-between">
                         <label class="font-bold text-sm gb-text">FSC (%)</label>
-                        <input type="number" id="fsc" class="form-input editable-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner">
+                        <input type="number" id="fsc" class="form-input editable-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                     <hr id="field-hr" class="border-gray-600 dark:border-gray-500 my-1">
                     <div id="field-primary-output" class="flex items-center justify-between">
                         <label class="font-bold text-sm gb-text" id="primary-output-label">($/Ton)</label>
-                        <input type="text" id="primary-output" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
+                        <input type="text" id="primary-output" readonly class="form-input output-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                      <div id="field-fsc-total" class="flex items-center justify-between">
                         <label class="font-bold text-sm gb-text">FSC Total</label>
-                        <input type="text" id="fsc-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
+                        <input type="text" id="fsc-total" readonly class="form-input output-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                      <div id="field-final-total" class="flex items-center justify-between">
                         <label class="font-bold text-sm gb-text">Final Total</label>
-                        <input type="text" id="final-total" readonly class="form-input output-field w-24 p-2 text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
+                        <input type="text" id="final-total" readonly class="form-input output-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                 </div>
             </div>
@@ -291,7 +291,7 @@
                     </div>
                     <div class="ab-buttons">
                         <button type="button" data-key="b" class="ab-btn">B</button>
-                        <button type="button" data-key="a" class="ab-btn">A</button>
+                        <button type="button" data-key="a" id="calculateRouteBtn" class="ab-btn">A</button>
                     </div>
                 </div>
                 <div class="flex justify-center space-x-2 mt-2">
@@ -373,6 +373,14 @@
         const manualModeBtn = document.getElementById('manual-mode-btn');
         const pcmilerInputs = document.getElementById('pcmiler-inputs');
         const manualMilesInput = document.getElementById('manual-miles-input');
+        const totalMilesOutput = document.getElementById('total-miles-output');
+        const stop1Input = document.getElementById('stop1');
+        const stop2Input = document.getElementById('stop2');
+        const stop3Input = document.getElementById('stop3');
+        const calculateRouteBtn = document.getElementById('calculateRouteBtn');
+        const mapLoader = document.getElementById('map-loader');
+        const mapPlaceholder = document.getElementById('map-placeholder');
+        const apiError = document.getElementById('api-error');
         
         // --- State Management ---
         let currentMode = 'generateQuote';
@@ -535,10 +543,13 @@
         }
         
         function saveCalculation() {
+            const isRoutePlannerMode = !pcmilerInputs.classList.contains('hidden');
+            const currentMiles = isRoutePlannerMode ? totalMilesOutput.value : milesInput.value;
             const pInput = parseFloat(primaryInput.value) || 0;
-            const miles = parseFloat(milesInput.value) || 0;
+            const miles = parseFloat(currentMiles) || 0;
+
             if (pInput > 0 && miles > 0) {
-                const calculation = { mode: currentMode, primaryInput: primaryInput.value, miles: milesInput.value, tonnage: tonnageInput.value, fsc: fscInput.value, timestamp: new Date().toISOString() };
+                const calculation = { mode: currentMode, primaryInput: primaryInput.value, miles: currentMiles, tonnage: tonnageInput.value, fsc: fscInput.value, timestamp: new Date().toISOString() };
                 calculationHistory.unshift(calculation);
                 calculationHistory = calculationHistory.slice(0, 10);
                 localStorage.setItem('thompsonCalcHistory_v3', JSON.stringify(calculationHistory));
@@ -569,6 +580,7 @@
             setMode(calc.mode);
             primaryInput.value = calc.primaryInput;
             milesInput.value = calc.miles;
+            totalMilesOutput.value = calc.miles;
             tonnageInput.value = calc.tonnage || 23;
             fscInput.value = calc.fsc;
             calculate();
@@ -627,8 +639,11 @@
         });
 
         function calculate() {
+            const isRoutePlannerMode = !pcmilerInputs.classList.contains('hidden');
+            const currentMiles = isRoutePlannerMode ? totalMilesOutput.value : milesInput.value;
+
             const pInput = parseFloat(primaryInput.value) || 0;
-            const miles = parseFloat(milesInput.value) || 0;
+            const miles = parseFloat(currentMiles) || 0;
             const tonnage = parseFloat(tonnageInput.value) || (currentMode === 'calculateFromFlat' ? 0 : 23);
             const fscPercent = parseFloat(fscInput.value) || 0;
             let lineHaul = 0, pOutput = 0;
@@ -676,7 +691,10 @@
         }
 
         function getSummaryText(calcData = null) {
-            const data = calcData || { mode: currentMode, primaryInput: primaryInput.value, miles: milesInput.value, tonnage: tonnageInput.value, fsc: fscInput.value };
+            const isRoutePlannerMode = !pcmilerInputs.classList.contains('hidden');
+            const currentMiles = isRoutePlannerMode ? totalMilesOutput.value : milesInput.value;
+            const data = calcData || { mode: currentMode, primaryInput: primaryInput.value, miles: currentMiles, tonnage: tonnageInput.value, fsc: fscInput.value };
+            
             const pInput = parseFloat(data.primaryInput) || 0;
             const miles = parseFloat(data.miles) || 0;
             const tonnage = parseFloat(data.tonnage) || 23;
@@ -730,7 +748,7 @@
         });
 
         // --- Event Listeners for Calculation and Actions ---
-        [primaryInput, milesInput, tonnageInput, fscInput].forEach(input => input.addEventListener('input', calculate));
+        [primaryInput, milesInput, tonnageInput, fscInput, totalMilesOutput].forEach(input => input.addEventListener('input', calculate));
         
         let saveTimeout;
         form.addEventListener('input', () => { 
@@ -757,10 +775,14 @@
         });
 
         printButton.addEventListener('click', () => {
-            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText();
+            const isRoutePlannerMode = !pcmilerInputs.classList.contains('hidden');
+            const currentMiles = isRoutePlannerMode ? totalMilesOutput.value : milesInput.value;
+            const data = { mode: currentMode, primaryInput: primaryInput.value, miles: currentMiles, tonnage: tonnageInput.value, fsc: fscInput.value };
+            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText(data);
+            
             document.getElementById('print-date').textContent = new Date().toLocaleDateString();
             document.getElementById('print-mode').textContent = modeLabel;
-            document.getElementById('print-miles').textContent = milesInput.value || 'N/A';
+            document.getElementById('print-miles').textContent = currentMiles || 'N/A';
             document.getElementById('print-tonnage').textContent = tonnageInput.value || 'N/A';
             document.getElementById('print-fsc').textContent = `${fscInput.value || 0}%`;
             document.querySelector('#print-your-rate-row strong').textContent = yourRateLabel;
@@ -770,6 +792,70 @@
             document.getElementById('print-fsc-total').textContent = `$${fscTotal}`;
             document.getElementById('print-final-total').textContent = `$${finalTotal}`;
             window.print();
+        });
+
+        // --- NEW: PC*Miler API Logic ---
+        async function getRouteMiles() {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                apiError.textContent = 'Please enter your API key in the menu.';
+                apiError.classList.remove('hidden');
+                return;
+            }
+
+            const stops = [stop1Input.value, stop2Input.value, stop3Input.value]
+                .map(s => s.trim())
+                .filter(s => s) // Remove any empty stops
+                .join(';');
+
+            if (stops.split(';').length < 2) {
+                apiError.textContent = 'Please enter at least two locations.';
+                apiError.classList.remove('hidden');
+                return;
+            }
+
+            mapLoader.classList.remove('hidden');
+            mapPlaceholder.classList.add('hidden');
+            apiError.classList.add('hidden');
+
+            const url = `https://pcmiler.api.trimblemaps.com/v1/reports/mileage?stops=${encodeURIComponent(stops)}`;
+
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': apiKey }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData[0]?.Err || 'An unknown API error occurred.');
+                }
+
+                const data = await response.json();
+                
+                if (data && data.length > 0 && data[0].TMiles) {
+                    const totalMiles = parseFloat(data[0].TMiles);
+                    totalMilesOutput.value = totalMiles.toFixed(1);
+                    // Trigger calculation after getting miles
+                    calculate();
+                } else {
+                    throw new Error('Mileage data not found in API response.');
+                }
+
+            } catch (error) {
+                apiError.textContent = `Error: ${error.message}`;
+                apiError.classList.remove('hidden');
+            } finally {
+                mapLoader.classList.add('hidden');
+                mapPlaceholder.classList.remove('hidden');
+            }
+        }
+
+        calculateRouteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Only run if in route planner mode
+            if (!pcmilerInputs.classList.contains('hidden')) {
+                getRouteMiles();
+            }
         });
         
         // --- Initial Setup ---
