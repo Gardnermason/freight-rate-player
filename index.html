@@ -818,10 +818,9 @@
             mapPlaceholder.classList.add('hidden');
             apiError.classList.add('hidden');
             
-            // FIXED: Added a CORS proxy to the API URL
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
             const apiUrl = `https://pcmiler.api.trimblemaps.com/v1/reports/mileage?stops=${encodeURIComponent(stops)}`;
-            const url = proxyUrl + apiUrl;
+            const url = proxyUrl + encodeURIComponent(apiUrl);
 
             try {
                 const response = await fetch(url, {
@@ -829,8 +828,13 @@
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData[0]?.Err || 'An unknown API error occurred.');
+                    const responseText = await response.text();
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        throw new Error(errorData[0]?.Err || 'An unknown API error occurred.');
+                    } catch (e) {
+                         throw new Error(`API proxy error: ${response.statusText}`);
+                    }
                 }
 
                 const data = await response.json();
@@ -838,7 +842,6 @@
                 if (data && data.length > 0 && data[0].TMiles) {
                     const totalMiles = parseFloat(data[0].TMiles);
                     totalMilesOutput.value = totalMiles.toFixed(1);
-                    // Trigger calculation after getting miles
                     calculate();
                 } else {
                     throw new Error('Mileage data not found in API response.');
@@ -855,7 +858,6 @@
 
         calculateRouteBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            // Only run if in route planner mode
             if (!pcmilerInputs.classList.contains('hidden')) {
                 getRouteMiles();
             }
@@ -878,12 +880,10 @@
             const manualIsHidden = manualMilesInput.classList.contains('hidden');
 
             if (hasKey && manualIsHidden) {
-                // API key exists, show route planner
                 pcmilerInputs.classList.remove('hidden');
                 manualMilesInput.classList.add('hidden');
                 manualModeBtn.textContent = 'Switch to Manual Miles';
             } else {
-                // No API key or already in manual mode
                 pcmilerInputs.classList.add('hidden');
                 manualMilesInput.classList.remove('hidden');
                 manualModeBtn.textContent = hasKey ? 'Switch to Route Planner' : 'Route Planner (API Key Needed)';
