@@ -19,16 +19,22 @@
     </script>
     <style>
         /* --- Base and Theming Styles --- */
+        @keyframes vaporwave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body { 
             font-family: 'Roboto', sans-serif; 
-            background-color: #f3f4f6; /* Light gray page background */
-            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
-            background-attachment: fixed;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: vaporwave 15s ease infinite;
             transition: background-color 0.3s ease;
         }
         .dark body {
-            background-color: #1f2937;
-             background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+            background: #1f2937; /* Solid dark background for night shift */
+            animation: none; /* Turn off animation in dark mode */
         }
         #calculator-ui { background-color: #e0e0d8; }
         .dark #calculator-ui { background-color: #374151; }
@@ -40,6 +46,8 @@
         
         .gb-text { color: #1f2937; }
         .dark .gb-text { color: #e5e7eb; }
+        
+        .dynamic-label { transition: opacity 0.3s ease-in-out; }
         
         /* --- Form and Input Styles --- */
         .form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); border-color: #3b82f6 !important; }
@@ -254,7 +262,7 @@
                 <!-- Right Side: Calculations -->
                 <div id="right-column" class="space-y-1 flex flex-col">
                      <div id="field-primary-input" class="flex items-center justify-between">
-                        <label class="font-bold text-sm gb-text" id="primary-input-label">($/Mile)</label>
+                        <label class="font-bold text-sm gb-text dynamic-label" id="primary-input-label">($/Mile)</label>
                         <input type="number" step="0.01" id="primary-input" class="form-input editable-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner">
                     </div>
                      <div id="field-tonnage" class="flex items-center justify-between">
@@ -267,7 +275,7 @@
                     </div>
                     <hr id="field-hr" class="border-gray-600 dark:border-gray-500 my-1">
                     <div id="field-primary-output" class="flex items-center justify-between">
-                        <label class="font-bold text-sm gb-text" id="primary-output-label">($/Ton)</label>
+                        <label class="font-bold text-sm gb-text dynamic-label" id="primary-output-label">($/Ton)</label>
                         <input type="text" id="primary-output" readonly class="form-input output-field w-24 p-1.5 text-sm text-right font-semibold border-2 rounded-lg shadow-inner cursor-not-allowed">
                     </div>
                      <div id="field-fsc-total" class="flex items-center justify-between">
@@ -615,20 +623,28 @@
             tonnageInput.disabled = isFlatMode;
             tonnageInput.classList.toggle('opacity-50', isFlatMode);
             
-            switch (newMode) {
-                case 'generateQuote':
-                    primaryInputLabel.textContent = '($/Mile)';
-                    primaryOutputLabel.textContent = '($/Ton)';
-                    break;
-                case 'calculateFromTon':
-                    primaryInputLabel.textContent = '($/Ton)';
-                    primaryOutputLabel.textContent = '($/Mile)';
-                    break;
-                case 'calculateFromFlat':
-                    primaryInputLabel.textContent = 'Flat Rate ($)';
-                    primaryOutputLabel.textContent = '($/Mile)';
-                    break;
-            }
+            // Fade out labels
+            document.querySelectorAll('.dynamic-label').forEach(label => label.classList.add('opacity-0'));
+
+            setTimeout(() => {
+                switch (newMode) {
+                    case 'generateQuote':
+                        primaryInputLabel.textContent = '($/Mile)';
+                        primaryOutputLabel.textContent = '($/Ton)';
+                        break;
+                    case 'calculateFromTon':
+                        primaryInputLabel.textContent = '($/Ton)';
+                        primaryOutputLabel.textContent = '($/Mile)';
+                        break;
+                    case 'calculateFromFlat':
+                        primaryInputLabel.textContent = 'Flat Rate ($)';
+                        primaryOutputLabel.textContent = '($/Mile)';
+                        break;
+                }
+                // Fade in labels
+                document.querySelectorAll('.dynamic-label').forEach(label => label.classList.remove('opacity-0'));
+            }, 150);
+
             resetCalculator();
         }
         
@@ -842,7 +858,11 @@
                      throw new Error('Mileage data not found in API response.');
                 }
             } catch(error) {
-                apiError.textContent = `Error: ${error.message}`;
+                let errorMessage = `Error: ${error.message}`;
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = "Error: Could not connect to routing service. Please check your internet connection or the proxy service.";
+                }
+                apiError.textContent = errorMessage;
                 apiError.classList.remove('hidden');
                 mapPlaceholder.classList.remove('hidden');
             } finally {
