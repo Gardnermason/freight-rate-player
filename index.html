@@ -794,7 +794,7 @@
             window.print();
         });
 
-        // --- NEW: PC*Miler API Logic ---
+        // --- PC*Miler API Logic ---
         async function getRouteMiles() {
             const apiKey = apiKeyInput.value.trim();
             if (!apiKey) {
@@ -817,8 +817,11 @@
             mapLoader.classList.remove('hidden');
             mapPlaceholder.classList.add('hidden');
             apiError.classList.add('hidden');
-
-            const url = `https://pcmiler.api.trimblemaps.com/v1/reports/mileage?stops=${encodeURIComponent(stops)}`;
+            
+            // FIXED: Added a CORS proxy to the API URL
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const apiUrl = `https://pcmiler.api.trimblemaps.com/v1/reports/mileage?stops=${encodeURIComponent(stops)}`;
+            const url = proxyUrl + apiUrl;
 
             try {
                 const response = await fetch(url, {
