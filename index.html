@@ -380,6 +380,7 @@
         const calculateRouteBtn = document.getElementById('calculateRouteBtn');
         const mapLoader = document.getElementById('map-loader');
         const mapPlaceholder = document.getElementById('map-placeholder');
+        const mapImage = document.getElementById('map-image');
         const apiError = document.getElementById('api-error');
         
         // --- State Management ---
@@ -738,6 +739,8 @@
         function resetCalculator() {
             form.reset();
             tonnageInput.value = (currentMode === 'calculateFromFlat') ? '' : 23;
+            mapImage.classList.add('hidden');
+            mapPlaceholder.classList.remove('hidden');
             calculate();
         }
         
@@ -816,43 +819,34 @@
 
             mapLoader.classList.remove('hidden');
             mapPlaceholder.classList.add('hidden');
+            mapImage.classList.add('hidden');
             apiError.classList.add('hidden');
             
-            const proxyUrl = 'https://api.allorigins.win/raw?url=';
-            const apiUrl = `https://pcmiler.api.trimblemaps.com/v1/reports/mileage?stops=${encodeURIComponent(stops)}`;
-            const url = proxyUrl + encodeURIComponent(apiUrl);
-
+            // --- MOCK API CALL FOR DEVELOPMENT ---
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
             try {
-                const response = await fetch(url, {
-                    headers: { 'Authorization': apiKey }
-                });
-
-                if (!response.ok) {
-                    const responseText = await response.text();
-                    try {
-                        const errorData = JSON.parse(responseText);
-                        throw new Error(errorData[0]?.Err || 'An unknown API error occurred.');
-                    } catch (e) {
-                         throw new Error(`API proxy error: ${response.statusText}`);
-                    }
-                }
-
-                const data = await response.json();
+                const mockData = {
+                    mileage: [{ "TMiles": "1234.5" }],
+                    mapUrl: 'https://placehold.co/400x400/9bbc0f/1f2937?text=Route+Map'
+                };
                 
-                if (data && data.length > 0 && data[0].TMiles) {
-                    const totalMiles = parseFloat(data[0].TMiles);
+                if (mockData.mileage && mockData.mileage.length > 0 && mockData.mileage[0].TMiles) {
+                    const totalMiles = parseFloat(mockData.mileage[0].TMiles);
                     totalMilesOutput.value = totalMiles.toFixed(1);
+                    
+                    mapImage.src = mockData.mapUrl;
+                    mapImage.classList.remove('hidden');
+                    
                     calculate();
                 } else {
-                    throw new Error('Mileage data not found in API response.');
+                     throw new Error('Mileage data not found in API response.');
                 }
-
-            } catch (error) {
+            } catch(error) {
                 apiError.textContent = `Error: ${error.message}`;
                 apiError.classList.remove('hidden');
+                mapPlaceholder.classList.remove('hidden');
             } finally {
                 mapLoader.classList.add('hidden');
-                mapPlaceholder.classList.remove('hidden');
             }
         }
 
