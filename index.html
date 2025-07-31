@@ -62,9 +62,9 @@
         /* --- Controller UI Styles (D-Pad, AB Buttons) --- */
         .d-pad { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100px; height: 100px; }
         .d-pad-btn { background-color: #1f2937; transition: background-color 0.2s; } /* Dark gray for light mode */
-        .dark .d-pad-btn { background-color: #374151; }
+        .dark .d-pad-btn { background-color: #4b5563; } /* FIXED: Lighter than the background */
         .d-pad-btn:active { background-color: #4b5563; }
-        .dark .d-pad-btn:active { background-color: #4b5563; }
+        .dark .d-pad-btn:active { background-color: #5a6678; } /* Even lighter for the press effect */
         .up { grid-column: 2; grid-row: 1; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
         .left { grid-column: 1; grid-row: 2; clip-path: polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%);}
         .center { grid-column: 2; grid-row: 2; }
@@ -322,6 +322,11 @@
             <h2 class="text-xl font-semibold mb-6 border-b pb-2">Freight Calculation Summary</h2>
             <p class="mb-2 text-lg"><strong class="w-48 inline-block">Date:</strong> <span id="print-date"></span></p>
             <p class="mb-2 text-lg"><strong class="w-48 inline-block">Calculation Mode:</strong> <span id="print-mode"></span></p>
+            <div id="print-locations" class="hidden">
+                 <p class="mb-2 text-lg"><strong class="w-48 inline-block">Origin:</strong> <span id="print-origin"></span></p>
+                 <p class="mb-2 text-lg"><strong class="w-48 inline-block">P/U Location:</strong> <span id="print-pickup"></span></p>
+                 <p class="mb-2 text-lg"><strong class="w-48 inline-block">Del. Location:</strong> <span id="print-delivery"></span></p>
+            </div>
             <p class="mb-2 text-lg"><strong class="w-48 inline-block">Total Miles:</strong> <span id="print-miles"></span></p>
             <p class="mb-2 text-lg"><strong class="w-48 inline-block">Tonnage:</strong> <span id="print-tonnage"></span></p>
             <p class="mb-2 text-lg"><strong class="w-48 inline-block">FSC (%):</strong> <span id="print-fsc"></span></p>
@@ -801,6 +806,17 @@
             
             document.getElementById('print-date').textContent = new Date().toLocaleDateString();
             document.getElementById('print-mode').textContent = modeLabel;
+            
+            const printLocations = document.getElementById('print-locations');
+            if (isRoutePlannerMode) {
+                document.getElementById('print-origin').textContent = stop1Input.value || 'N/A';
+                document.getElementById('print-pickup').textContent = stop2Input.value || 'N/A';
+                document.getElementById('print-delivery').textContent = stop3Input.value || 'N/A';
+                printLocations.classList.remove('hidden');
+            } else {
+                printLocations.classList.add('hidden');
+            }
+
             document.getElementById('print-miles').textContent = currentMiles || 'N/A';
             document.getElementById('print-tonnage').textContent = tonnageInput.value || 'N/A';
             document.getElementById('print-fsc').textContent = `${fscInput.value || 0}%`;
