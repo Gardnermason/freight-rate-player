@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Freight Calculator - Preview</title>
+    <title>Custom Freight Calculator - Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,9 +62,9 @@
         /* --- Controller UI Styles (D-Pad, AB Buttons) --- */
         .d-pad { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100px; height: 100px; }
         .d-pad-btn { background-color: #1f2937; transition: background-color 0.2s; } /* Dark gray for light mode */
-        .dark .d-pad-btn { background-color: #4b5563; } /* FIXED: Lighter than the background */
+        .dark .d-pad-btn { background-color: #4b5563; }
         .d-pad-btn:active { background-color: #4b5563; }
-        .dark .d-pad-btn:active { background-color: #5a6678; } /* Even lighter for the press effect */
+        .dark .d-pad-btn:active { background-color: #5a6678; }
         .up { grid-column: 2; grid-row: 1; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);}
         .left { grid-column: 1; grid-row: 2; clip-path: polygon(0% 50%, 50% 100%, 100% 50%, 50% 0%);}
         .center { grid-column: 2; grid-row: 2; }
@@ -343,6 +343,7 @@
     
     <script>
         // --- DOM Element Selection ---
+        // This section selects all the necessary HTML elements and stores them in constants for easy access.
         const form = document.getElementById('rateCalculatorForm');
         const primaryInput = document.getElementById('primary-input');
         const primaryInputLabel = document.getElementById('primary-input-label');
@@ -397,11 +398,12 @@
         const apiError = document.getElementById('api-error');
         
         // --- State Management ---
+        // These variables hold the application's current state and are loaded from localStorage.
         let currentMode = 'generateQuote';
         let calculationHistory = JSON.parse(localStorage.getItem('thompsonCalcHistory_v3')) || [];
         let personalCalcCount = parseInt(localStorage.getItem('thompsonPersonalCalcCount_v3')) || 0;
 
-        // --- Konami Code & Sound Logic ---
+        // --- Easter Eggs & Special Effects ---
         const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
         let konamiIndex = 0;
         
@@ -491,30 +493,25 @@
             }
         }
 
-        window.addEventListener('keydown', (e) => handleKonami(e.key));
-        document.querySelectorAll('.d-pad-btn, .ab-btn').forEach(btn => {
-            btn.addEventListener('click', () => handleKonami(btn.dataset.key));
-        });
-
-        // --- Truck Horn Easter Egg ---
         let hornClickCount = 0;
         let hornTimeout;
-        mainTitle.addEventListener('click', async () => {
+        function handleHornClick() {
             clearTimeout(hornTimeout);
             hornClickCount++;
             if (hornClickCount === 5) {
                 try {
-                    await Tone.start();
-                    const horn = new Tone.Oscillator(185, "sawtooth").toDestination();
-                    horn.volume.value = -12;
-                    horn.start().stop("+0.8");
+                    Tone.start().then(() => {
+                        const horn = new Tone.Oscillator(185, "sawtooth").toDestination();
+                        horn.volume.value = -12;
+                        horn.start().stop("+0.8");
+                    });
                     hornClickCount = 0;
                 } catch(e) {
                     console.error("Tone.js could not start.", e);
                 }
             }
             hornTimeout = setTimeout(() => { hornClickCount = 0; }, 2000);
-        });
+        }
         
         // --- Menu, Theme, History, and Feedback Logic ---
         function openMenu() {
@@ -530,27 +527,18 @@
             feedbackView.classList.add('hidden');
         }
 
-        openMenuBtn.addEventListener('click', openMenu);
-        closeMenuBtn.addEventListener('click', closeMenu);
-        menuOverlay.addEventListener('click', closeMenu);
-
-        historyMenuBtn.addEventListener('click', (e) => { e.preventDefault(); mainMenu.classList.add('hidden'); historyView.classList.remove('hidden'); renderHistory(); });
-        feedbackMenuBtn.addEventListener('click', (e) => { e.preventDefault(); mainMenu.classList.add('hidden'); feedbackView.classList.remove('hidden'); });
-        backToMenuHist.addEventListener('click', () => { historyView.classList.add('hidden'); mainMenu.classList.remove('hidden'); });
-        backToMenuFeed.addEventListener('click', () => { feedbackView.classList.add('hidden'); mainMenu.classList.remove('hidden'); });
-        
         function updateThemeIcon(isDarkMode) {
             themeToggleDarkIcon.classList.toggle('hidden', !isDarkMode);
             themeToggleLightIcon.classList.toggle('hidden', isDarkMode);
         }
 
-        themeToggleBtn.addEventListener('click', function(e) {
+        function toggleTheme(e) {
             e.preventDefault();
             document.documentElement.classList.toggle('dark');
             const isDarkMode = document.documentElement.classList.contains('dark');
             localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
             updateThemeIcon(isDarkMode);
-        });
+        }
         
         function updatePersonalCounterDisplay() {
             personalCalcCounter.textContent = personalCalcCount.toLocaleString();
@@ -600,17 +588,15 @@
             calculate();
         }
         
-        clearHistoryBtn.addEventListener('click', () => { calculationHistory = []; localStorage.removeItem('thompsonCalcHistory_v3'); renderHistory(); });
-        
-        feedbackForm.addEventListener('submit', (e) => {
+        function handleFeedbackSubmit(e) {
             e.preventDefault();
             const message = document.getElementById('feedback-message').value;
             if (message.trim()) {
                 window.location.href = `mailto:mgardner@thompsontrans.net?subject=Feedback%20for%20Freight%20Calculator%20v3&body=${encodeURIComponent(message)}`;
             }
-        });
+        }
 
-        // --- Main App Logic ---
+        // --- Core Calculator Logic ---
         function setMode(newMode) {
             currentMode = newMode;
             const activeButton = modeButtons.find(btn => btn.dataset.mode === newMode);
@@ -628,7 +614,6 @@
             tonnageInput.disabled = isFlatMode;
             tonnageInput.classList.toggle('opacity-50', isFlatMode);
             
-            // Fade out labels
             document.querySelectorAll('.dynamic-label').forEach(label => label.classList.add('opacity-0'));
 
             setTimeout(() => {
@@ -646,20 +631,12 @@
                         primaryOutputLabel.textContent = '($/Mile)';
                         break;
                 }
-                // Fade in labels
                 document.querySelectorAll('.dynamic-label').forEach(label => label.classList.remove('opacity-0'));
             }, 150);
 
             resetCalculator();
         }
         
-        modeButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                setMode(button.dataset.mode);
-            });
-        });
-
         function calculate() {
             const isRoutePlannerMode = !pcmilerInputs.classList.contains('hidden');
             const currentMiles = isRoutePlannerMode ? totalMilesOutput.value : milesInput.value;
@@ -765,70 +742,6 @@
             calculate();
         }
         
-        resetButton.addEventListener('click', resetCalculator);
-        document.querySelector('.ab-btn[data-key="b"]').addEventListener('click', (e) => {
-            e.preventDefault();
-            resetCalculator();
-        });
-
-        // --- Event Listeners for Calculation and Actions ---
-        [primaryInput, milesInput, tonnageInput, fscInput, totalMilesOutput].forEach(input => input.addEventListener('input', calculate));
-        
-        let saveTimeout;
-        form.addEventListener('input', () => { 
-            clearTimeout(saveTimeout); 
-            saveTimeout = setTimeout(saveCalculation, 1500); 
-        });
-
-        copyButton.addEventListener('click', () => {
-            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText();
-            const summary = `Freight Calculation Summary:\n- Mode: ${modeLabel}\n- Miles: ${milesInput.value || 'N/A'}\n- Tonnage: ${tonnageInput.value || 'N/A'}\n- FSC: ${fscInput.value || 0}%\n---\n- Final Total: $${finalTotal}\n- FSC Amount: $${fscTotal}\n---\n- ${yourRateLabel} ${yourRateValue}\n- ${offerLabel} ${offerValue}`.trim();
-            copySource.value = summary;
-            copySource.select();
-            document.execCommand('copy');
-            copyNotification.textContent = 'Copied to clipboard!';
-            copyNotification.style.opacity = '1';
-            setTimeout(() => { copyNotification.style.opacity = '0'; }, 2000);
-        });
-        
-        emailButton.addEventListener('click', () => {
-             const { offerValue } = getSummaryText();
-             const subject = "Freight Quote";
-             const body = `Hello,\n\nFollowing up on your request, here is our all-inclusive quote for the lane:\n\nRate: ${offerValue}\n\nPlease let us know if you have any questions.\n\nThank you,\nThompson Transportation`;
-             window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        });
-
-        printButton.addEventListener('click', () => {
-            const isRoutePlannerMode = !pcmilerInputs.classList.contains('hidden');
-            const currentMiles = isRoutePlannerMode ? totalMilesOutput.value : milesInput.value;
-            const data = { mode: currentMode, primaryInput: primaryInput.value, miles: currentMiles, tonnage: tonnageInput.value, fsc: fscInput.value };
-            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText(data);
-            
-            document.getElementById('print-date').textContent = new Date().toLocaleDateString();
-            document.getElementById('print-mode').textContent = modeLabel;
-            
-            const printLocations = document.getElementById('print-locations');
-            if (isRoutePlannerMode) {
-                document.getElementById('print-origin').textContent = stop1Input.value || 'N/A';
-                document.getElementById('print-pickup').textContent = stop2Input.value || 'N/A';
-                document.getElementById('print-delivery').textContent = stop3Input.value || 'N/A';
-                printLocations.classList.remove('hidden');
-            } else {
-                printLocations.classList.add('hidden');
-            }
-
-            document.getElementById('print-miles').textContent = currentMiles || 'N/A';
-            document.getElementById('print-tonnage').textContent = tonnageInput.value || 'N/A';
-            document.getElementById('print-fsc').textContent = `${fscInput.value || 0}%`;
-            document.querySelector('#print-your-rate-row strong').textContent = yourRateLabel;
-            document.getElementById('print-your-rate').textContent = yourRateValue;
-            document.querySelector('#print-offer-row strong').textContent = offerLabel;
-            document.getElementById('print-offer').textContent = offerValue;
-            document.getElementById('print-fsc-total').textContent = `$${fscTotal}`;
-            document.getElementById('print-final-total').textContent = `$${finalTotal}`;
-            window.print();
-        });
-
         // --- PC*Miler API Logic ---
         async function getRouteMiles() {
             const apiKey = apiKeyInput.value.trim();
@@ -885,24 +798,49 @@
                 mapLoader.classList.add('hidden');
             }
         }
-
-        calculateRouteBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (!pcmilerInputs.classList.contains('hidden')) {
-                getRouteMiles();
-            }
-        });
         
-        // --- Initial Setup ---
+        // --- Initial Setup & Event Listeners ---
         function initialSetup() {
+            // Load API key from local storage
             apiKeyInput.value = localStorage.getItem('pcmilerApiKey') || '';
+            // Check which mode (manual/route) to display based on key
             checkApiOrManual(); 
+            // Update the calculation counter display
             updatePersonalCounterDisplay();
+            // Set the initial theme based on user preference or system settings
             const savedTheme = localStorage.getItem('theme');
             const isDarkMode = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
             if (isDarkMode) document.documentElement.classList.add('dark');
             updateThemeIcon(isDarkMode);
+            // Set the initial calculation mode to 'Generate Quote'
             setMode('generateQuote');
+
+            // --- Attach all event listeners ---
+            openMenuBtn.addEventListener('click', openMenu);
+            closeMenuBtn.addEventListener('click', closeMenu);
+            menuOverlay.addEventListener('click', closeMenu);
+            historyMenuBtn.addEventListener('click', (e) => { e.preventDefault(); mainMenu.classList.add('hidden'); historyView.classList.remove('hidden'); renderHistory(); });
+            feedbackMenuBtn.addEventListener('click', (e) => { e.preventDefault(); mainMenu.classList.add('hidden'); feedbackView.classList.remove('hidden'); });
+            backToMenuHist.addEventListener('click', () => { historyView.classList.add('hidden'); mainMenu.classList.remove('hidden'); });
+            backToMenuFeed.addEventListener('click', () => { feedbackView.classList.add('hidden'); mainMenu.classList.remove('hidden'); });
+            themeToggleBtn.addEventListener('click', toggleTheme);
+            clearHistoryBtn.addEventListener('click', () => { calculationHistory = []; localStorage.removeItem('thompsonCalcHistory_v3'); renderHistory(); });
+            feedbackForm.addEventListener('submit', handleFeedbackSubmit);
+            resetButton.addEventListener('click', resetCalculator);
+            document.querySelector('.ab-btn[data-key="b"]').addEventListener('click', (e) => { e.preventDefault(); resetCalculator(); });
+            mainTitle.addEventListener('click', handleHornClick);
+            window.addEventListener('keydown', (e) => handleKonami(e.key));
+            document.querySelectorAll('.d-pad-btn, .ab-btn').forEach(btn => { btn.addEventListener('click', () => handleKonami(btn.dataset.key)); });
+            modeButtons.forEach(button => { button.addEventListener('click', (e) => { e.preventDefault(); setMode(button.dataset.mode); }); });
+            [primaryInput, milesInput, tonnageInput, fscInput, totalMilesOutput].forEach(input => input.addEventListener('input', calculate));
+            let saveTimeout;
+            form.addEventListener('input', () => { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveCalculation, 1500); });
+            copyButton.addEventListener('click', handleCopy);
+            emailButton.addEventListener('click', handleEmail);
+            printButton.addEventListener('click', handlePrint);
+            calculateRouteBtn.addEventListener('click', (e) => { e.preventDefault(); if (!pcmilerInputs.classList.contains('hidden')) { getRouteMiles(); } });
+            apiKeyInput.addEventListener('input', () => { localStorage.setItem('pcmilerApiKey', apiKeyInput.value); checkApiOrManual(); });
+            manualModeBtn.addEventListener('click', () => { pcmilerInputs.classList.toggle('hidden'); manualMilesInput.classList.toggle('hidden'); checkApiOrManual(); });
         }
 
         function checkApiOrManual() {
@@ -920,18 +858,57 @@
                 manualModeBtn.disabled = !hasKey;
             }
         }
+        
+        function handleCopy() {
+            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText();
+            const summary = `Freight Calculation Summary:\n- Mode: ${modeLabel}\n- Miles: ${milesInput.value || 'N/A'}\n- Tonnage: ${tonnageInput.value || 'N/A'}\n- FSC: ${fscInput.value || 0}%\n---\n- Final Total: $${finalTotal}\n- FSC Amount: $${fscTotal}\n---\n- ${yourRateLabel} ${yourRateValue}\n- ${offerLabel} ${offerValue}`.trim();
+            copySource.value = summary;
+            copySource.select();
+            document.execCommand('copy');
+            copyNotification.textContent = 'Copied to clipboard!';
+            copyNotification.style.opacity = '1';
+            setTimeout(() => { copyNotification.style.opacity = '0'; }, 2000);
+        }
 
-        apiKeyInput.addEventListener('input', () => {
-            localStorage.setItem('pcmilerApiKey', apiKeyInput.value);
-            checkApiOrManual();
-        });
+        function handleEmail() {
+             const { offerValue } = getSummaryText();
+             const subject = "Freight Quote";
+             const body = `Hello,\n\nFollowing up on your request, here is our all-inclusive quote for the lane:\n\nRate: ${offerValue}\n\nPlease let us know if you have any questions.\n\nThank you,\nThompson Transportation`;
+             window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
 
-        manualModeBtn.addEventListener('click', () => {
-            pcmilerInputs.classList.toggle('hidden');
-            manualMilesInput.classList.toggle('hidden');
-            checkApiOrManual();
-        });
+        function handlePrint() {
+            const isRoutePlannerMode = !pcmilerInputs.classList.contains('hidden');
+            const currentMiles = isRoutePlannerMode ? totalMilesOutput.value : milesInput.value;
+            const data = { mode: currentMode, primaryInput: primaryInput.value, miles: currentMiles, tonnage: tonnageInput.value, fsc: fscInput.value };
+            const { yourRateLabel, yourRateValue, offerLabel, offerValue, modeLabel, fscTotal, finalTotal } = getSummaryText(data);
+            
+            document.getElementById('print-date').textContent = new Date().toLocaleDateString();
+            document.getElementById('print-mode').textContent = modeLabel;
+            
+            const printLocations = document.getElementById('print-locations');
+            if (isRoutePlannerMode) {
+                document.getElementById('print-origin').textContent = stop1Input.value || 'N/A';
+                document.getElementById('print-pickup').textContent = stop2Input.value || 'N/A';
+                document.getElementById('print-delivery').textContent = stop3Input.value || 'N/A';
+                printLocations.classList.remove('hidden');
+            } else {
+                printLocations.classList.add('hidden');
+            }
 
+            document.getElementById('print-miles').textContent = currentMiles || 'N/A';
+            document.getElementById('print-tonnage').textContent = tonnageInput.value || 'N/A';
+            document.getElementById('print-fsc').textContent = `${fscInput.value || 0}%`;
+            document.querySelector('#print-your-rate-row strong').textContent = yourRateLabel;
+            document.getElementById('print-your-rate').textContent = yourRateValue;
+            document.querySelector('#print-offer-row strong').textContent = offerLabel;
+            document.getElementById('print-offer').textContent = offerValue;
+            document.getElementById('print-fsc-total').textContent = `$${fscTotal}`;
+            document.getElementById('print-final-total').textContent = `$${finalTotal}`;
+            window.print();
+        }
+
+        // --- Start the application ---
         initialSetup();
     </script>
 </body>
